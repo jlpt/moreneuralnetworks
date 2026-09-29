@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!--
+    Runs the Neuron World simulation core without Unity, for fast balance testing.
+    Compiles the same files Unity uses from Assets/Scripts/World/Core.
+    LangVersion 9 matches what Unity 6 supports, so anything that builds here builds in Unity.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <LangVersion>9.0</LangVersion>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../Assets/Scripts/World/Core/**/*.cs" />
+  </ItemGroup>
+</Project>
