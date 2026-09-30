@@ -393,6 +393,27 @@ function buildClassroom() {
 }
 
 // ---------------------------------------------------------------------------
+// Spawnable props (the story can `spawn:{name, pos}` these at any time)
+// ---------------------------------------------------------------------------
+function makeCake() {
+  const g = new THREE.Group();
+  const plate = new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.15, 0.015, 40), std(0xffffff, { roughness: 0.2 })); plate.position.y = 0.008; g.add(plate);
+  const sponge = std(0xf6dc9b, { roughness: 0.9 }), cream = std(0xfff7f2, { roughness: 0.6 });
+  const L = (r, h, y, m) => { const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 40), m); c.position.y = y; g.add(c); };
+  L(0.11, 0.05, 0.04, sponge); L(0.112, 0.012, 0.072, cream); L(0.11, 0.05, 0.103, sponge); L(0.114, 0.014, 0.135, cream);
+  const top = new THREE.Mesh(new THREE.TorusGeometry(0.095, 0.014, 10, 40), cream); top.rotation.x = Math.PI / 2; top.position.y = 0.147; g.add(top);
+  for (let i = 0; i < 8; i++) { // strawberries around the rim
+    const a = (i / 8) * Math.PI * 2, s = new THREE.Mesh(new THREE.SphereGeometry(0.017, 14, 10), std(0xe0203a, { roughness: 0.35 }));
+    s.scale.set(1, 1.15, 1); s.position.set(Math.cos(a) * 0.088, 0.17, Math.sin(a) * 0.088); g.add(s);
+    const leaf = new THREE.Mesh(new THREE.ConeGeometry(0.008, 0.012, 6), std(0x3f9a5c)); leaf.position.set(s.position.x, 0.19, s.position.z); g.add(leaf);
+  }
+  const big = new THREE.Mesh(new THREE.SphereGeometry(0.03, 16, 12), std(0xe0203a, { roughness: 0.3 })); big.scale.y = 1.15; big.position.y = 0.17; g.add(big);
+  g.userData.origin = 'bottom';
+  return g;
+}
+export const PROPS = { cake: makeCake };
+
+// ---------------------------------------------------------------------------
 export const BUILDERS = {
   store: buildStore,
   apartment: buildApartment,

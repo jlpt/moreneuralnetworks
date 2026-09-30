@@ -76,6 +76,12 @@ export const POSES = {
     aL: [0.3, -1.05, 0], eL: [-0.9, -1.25, 0], aR: [0.3, 1.05, 0], eR: [-0.9, 1.25, 0],
     head: [0.12, 0, 0.1], spine: [0.06, 0, 0],
   },
+  // eating: right hand (fork) up to the mouth, left hand under the plate
+  eat: {
+    aL: [-0.3, 0, -1.2], eL: [-1.4, -0.7, 0],
+    aR: [-0.3, 0, 1.15], eR: [-2.4, 1.0, 0],
+    head: [0.06, 0, 0.05], spine: [0.04, 0, 0],
+  },
   // holding something overhead with both hands
   lift: {
     aL: [0, 0, 0.95], eL: [0, 0, 0.45], aR: [0, 0, -0.95], eR: [0, 0, -0.45],
