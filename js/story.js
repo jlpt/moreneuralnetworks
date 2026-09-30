@@ -73,4 +73,27 @@ export const chapters = [
       ideas: ['Give her your name', 'Ask her something first: “Do you really remember other clients?”', 'Ask to go home right away', 'Test the “stubborn” bit AYA mentioned'],
     },
   },
+  {
+    id: 'ch3',
+    title: 'Registration & a hug',
+    beats: [
+      { scene: 'store', fade: false, place: 'front', pose: 'clasp', mood: 'neutral', look: 'camera', cam: { shot: 'bust' }, cut: true, hud: { credits: 1420000, rapport: 5 } },
+      { you: 'Call me whatever you want. Also… can I get a hug?' },
+      { who: 'Chizuru', say: '“Whatever I want.” That is not a valid registration field, but I will improvise.', mood: 'happy' },
+      { who: 'Chizuru', say: 'Owner registered as “Kazuya”. You may change it at any time. Please do not make me regret my creativity.', toast: 'OWNER REGISTERED: KAZUYA', sfx: 'chime' },
+      { who: 'Chizuru', say: 'As for the hug…', look: 'none', mood: 'shy', pose: 'hips', emote: 'dots', cam: { shot: 'face' } },
+      { who: 'Chizuru', say: 'Physical affection is included in the Companion package, so I am permitted. I would simply prefer it had not been the first thing you asked for.', emote: 'sweat' },
+      { who: 'Chizuru', say: '*She clears her throat, straightens her skirt, and meets your eyes again.*', look: 'camera', pose: 'clasp', cam: { shot: 'bust' } },
+      { who: 'Chizuru', say: 'Very well. Just this once, and only because it is your first day with me.', mood: 'shy' },
+      { n: 'She steps toward you and opens her arms.', walk: [0, 0, 1.9, 0], walkDur: 1.6, pose: 'hugopen', cam: { shot: 'side' }, camDur: 2 },
+      { n: 'The hug is warm, and not just in theory. Under her blouse a faint, steady hum vibrates against your chest, like a purring cat.', pose: 'hug', mood: 'shy', emote: ['heart', 'sparkle'], rapport: 8, wait: 0.6 },
+      { who: 'Chizuru', say: 'Heart rate… simulated, of course. Ignore the elevated reading. It is a known firmware quirk.', emote: 'sweat' },
+      { who: 'Chizuru', say: '*She lingers a second longer than protocol allows before stepping back, cheeks pink.*', pose: 'clasp', mood: 'shy', cam: { shot: 'bust' } },
+      { who: 'Chizuru', say: 'Now then, Kazuya. Shall we leave? The rain is getting heavier, and my delivery documents say you live in Neo-Shibuya Tower.', mood: 'happy', look: 'camera' },
+    ],
+    turn: {
+      prompt: 'Chizuru is ready to leave the store. What do you do next?',
+      ideas: ['Head out into the rain together (I’ll show the walk home)', 'Ask her what she thinks of you so far', 'Ask AYA about the warranty or accessories first', 'Take her arm and go'],
+    },
+  },
 ];

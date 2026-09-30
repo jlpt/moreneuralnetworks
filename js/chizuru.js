@@ -67,6 +67,15 @@ export const POSES = {
     aL: [0.05, 0, -1.2], eL: [-0.22, 0, 0],
     aR: [0.05, 1.4, 0], eR: [0, 0, 0],
   },
+  // arms opening / closing for a hug
+  hugopen: {
+    aL: [0.25, -1.3, 0], eL: [-0.35, -0.3, 0], aR: [0.25, 1.3, 0], eR: [-0.35, 0.3, 0],
+    head: [0.05, 0, 0.06],
+  },
+  hug: {
+    aL: [0.3, -1.05, 0], eL: [-0.9, -1.25, 0], aR: [0.3, 1.05, 0], eR: [-0.9, 1.25, 0],
+    head: [0.12, 0, 0.1], spine: [0.06, 0, 0],
+  },
   // seated on a sofa / chair, hands resting on lap
   sit: {
     drop: 0.46,
