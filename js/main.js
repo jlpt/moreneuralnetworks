@@ -237,6 +237,7 @@ async function playFrom(idx) {
   try {
     for (let i = idx; i < chapters.length; i++) {
       chapterIdx = i;
+      try { const seen = +(localStorage.getItem('chizuru.seen') ?? -1); if (i > seen) localStorage.setItem('chizuru.seen', String(i)); } catch (e) { /* storage unavailable */ }
       updateChapterMenu();
       const ch = chapters[i];
       for (const b of ch.beats) await exec(b, id);
@@ -314,6 +315,17 @@ async function boot() {
     ui.showHud(true);
     playFrom(+(params.get('ch') || 0));
   };
+  window.addEventListener('pointerdown', unlockAudio, { once: true });
+  // Resume: after a republish, jump straight to the first chapter you haven't seen yet.
+  let seen = -1;
+  try { seen = +(localStorage.getItem('chizuru.seen') ?? -1); } catch (e) { /* ignore */ }
+  if (params.has('ch')) { /* explicit chapter wins */ }
+  else if (seen >= 0 && !params.has('fresh')) {
+    startBtn.textContent = 'CONTINUE';
+    $('title').classList.add('gone');
+    ui.showHud(true);
+    playFrom(Math.min(seen + 1, chapters.length - 1));
+  }
   if (params.has('skiptitle')) { $('title').classList.add('gone'); }
 }
 boot();

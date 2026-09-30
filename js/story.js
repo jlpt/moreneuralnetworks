@@ -100,6 +100,7 @@ export const chapters = [
     id: 'ch4',
     title: 'Home, 41F',
     beats: [
+      { scene: 'store', fade: false, hide: true, cut: true, hud: { credits: 1420000, rapport: 13, time: 'SEP 30, 2087 · 23:58' } },
       { title: 'RAIN OVER SHIBUYA', subtitle: 'One umbrella. Two people. One of them is very good at keeping dry.', cardMs: 2800 },
       { n: 'The doors slide shut behind you. Neon smears across the wet pavement. Chizuru opens a slim transparent umbrella and tilts it, precisely, so that exactly half of it covers you.' },
       { who: 'Chizuru', say: 'Rain sensors indicate a 92% chance of this continuing until morning. I have calculated the shortest route home. It is also, coincidentally, the one with the fewest puddles.' },
@@ -142,6 +143,25 @@ export const chapters = [
     turn: {
       prompt: 'Chizuru is waiting for your reaction. What do you say or do?',
       ideas: ['Praise her (or tease her: “only a table?”)', 'Ask if she can lift YOU', 'Ask her to tidy the apartment now that she’s warmed up', 'Ask what else she is rated for'],
+    },
+  },
+  {
+    id: 'ch6',
+    title: 'Thermal warning',
+    beats: [
+      { scene: 'apartment', fade: false, place: [0, 0, -0.6, 0], pose: 'hips', mood: 'happy', look: 'camera', cam: { shot: 'bust' }, cut: true, hud: { time: 'OCT 01, 2087 · 00:24', credits: 1420000, rapport: 24 } },
+      { you: '*blushes* That was so hot.' },
+      { who: 'Chizuru', say: 'Hot? *She blinks, and her expression freezes.* My thermal sensors do read forty-one point two degrees. That is above nominal.', mood: 'shock', pose: 'clasp', emote: 'exclaim' },
+      { n: 'From somewhere behind her collar comes a faint whirr, a cooling fan spinning up to full speed.', fx: 'flash', mood: 'shy', cam: { shot: 'face' } },
+      { who: 'Chizuru', say: '…You did not mean the temperature, did you.', emote: 'dots', look: 'none' },
+      { who: 'Chizuru', say: '*She turns half away and presses both hands to her cheeks.* Please stop looking at me like that. My fan is very loud and it is embarrassing.', pose: 'cheeks', emote: ['sweat', 'heart'], rapport: 6 },
+      { who: 'Chizuru', say: 'Compliment received and logged. It will not affect my professional conduct. *Her voice rises a little on the last word.*', look: 'camera', pose: 'clasp', cam: { shot: 'bust' } },
+      { who: 'Chizuru', say: '…It might affect it slightly.', mood: 'shy', emote: 'heart' },
+      { who: 'Chizuru', say: 'You are flushed too, Kazuya. I recommend sitting down while I make tea. Cold barley tea, for cooling. For both of us.', mood: 'happy', walk: [-1.0, 0, -0.9, 0], walkDur: 1.6, pose: 'hips' },
+    ],
+    turn: {
+      prompt: 'Chizuru is making tea and pretending her fan isn’t whirring. What do you do?',
+      ideas: ['Sit on the sofa and watch her', 'Tease her about the fan', 'Offer to help with the tea', 'Ask what “slightly” means'],
     },
   },
 ];
