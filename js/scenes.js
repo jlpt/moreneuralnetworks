@@ -323,6 +323,11 @@ function buildApartment() {
   const dl = glowPlane(signTexture([['CHARGING CRADLE', '700 76px Rajdhani, sans-serif'], ['READY', '900 96px Rajdhani, sans-serif']], { w: 640, h: 320 }), 0.7, 0.35);
   dl.position.set(0, 1.85, -0.24); dock.add(dl);
   group.add(dock);
+  // entrance door (hinged on the left edge, swings into the room)
+  const doorway = new THREE.Mesh(new THREE.PlaneGeometry(0.92, 2.1), new THREE.MeshBasicMaterial({ color: 0x090b14 })); doorway.position.set(1.2, 1.05, 3.985); doorway.rotation.y = Math.PI; group.add(doorway);
+  const door = new THREE.Group(); door.position.set(0.74, 0, 3.96);
+  const panel = box(0.92, 2.1, 0.05, std(0xd9d2c8, { roughness: 0.6 }), 0.46, 1.05, 0); door.add(panel, box(0.05, 0.05, 0.1, trim, 0.82, 1.0, -0.05));
+  group.add(door);
   // plant + lamp
   const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.22, 0.17, 0.4, 16), std(0xd8d0c8)); pot.position.set(3.7, 0.2, 1.8); group.add(pot);
   for (let i = 0; i < 9; i++) { const l = new THREE.Mesh(new THREE.SphereGeometry(0.2, 10, 8), std(0x3f9a5c, { roughness: 0.8 })); l.scale.set(0.5, 1.6, 0.12); const a = i / 9 * Math.PI * 2; l.position.set(3.7 + Math.cos(a) * 0.17, 0.85, 1.8 + Math.sin(a) * 0.17); l.rotation.set(Math.sin(a) * 0.5, 0, -Math.cos(a) * 0.5); group.add(l); }
@@ -345,7 +350,7 @@ function buildApartment() {
     cam: { pos: [0.3, 1.5, 3.4], look: [0, 1.15, -1.0], fov: 46 },
     anchors: { center: [0, 0, -0.6, 0], window: [0, 0, -2.0, 0], door: [1.2, 0, 3.0, Math.PI], dock: [3.7, 0.08, -1.55, -0.2], sofa: [-3.55, 0, 0.5, Math.PI / 2], table: [-0.9, 0, 0.9, 0.2] },
     tint: 0xfff0e6, bright: 0.96,
-    props: { table: tbl, sofa },
+    props: { table: tbl, sofa, door },
     update(dt, t, ctx) {
       sky.update(dt, t);
       const on = ctx.party ? 1 : 0, k = 1 - Math.exp(-dt * 4);
@@ -422,7 +427,46 @@ function makeCake() {
   g.userData.origin = 'bottom';
   return g;
 }
-export const PROPS = { cake: makeCake };
+// A simple blocky intruder. Limbs are pivots so the story can pose him.
+function makeBurglar() {
+  const g = new THREE.Group();
+  const dark = std(0x1f232c, { roughness: 0.9 }), skin = std(0xe3b9a0), mask = std(0x0c0c10, { roughness: 1 }), pants = std(0x2b2f3a, { roughness: 0.9 }), stripe = std(0xf2f2f2, { roughness: 0.9 });
+  const upper = new THREE.Group(); upper.position.y = 0.85; g.add(upper);
+  const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.17, 0.42, 6, 12), dark); torso.position.y = 0.3; upper.add(torso);
+  for (let i = 0; i < 4; i++) { const s = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.035, 0.26), stripe); s.position.set(0, 0.12 + i * 0.12, 0); upper.add(s); } // the classic striped top
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.115, 20, 16), mask); head.position.y = 0.78; upper.add(head);
+  const eyes = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.04, 0.06), skin); eyes.position.set(0, 0.79, 0.085); upper.add(eyes);
+  const bag = new THREE.Mesh(new THREE.SphereGeometry(0.17, 14, 12), std(0x7a5a3a, { roughness: 1 })); bag.scale.set(1, 1.15, 0.8); bag.position.set(0, 0.42, -0.2); upper.add(bag);
+  const limb = (r, len, mat, x, y) => { const p = new THREE.Group(); p.position.set(x, y, 0); const m = new THREE.Mesh(new THREE.CapsuleGeometry(r, len, 4, 8), mat); m.position.y = -len / 2 - r; p.add(m); return p; };
+  const armL = limb(0.05, 0.5, dark, 0.23, 0.6), armR = limb(0.05, 0.5, dark, -0.23, 0.6);
+  upper.add(armL, armR);
+  const torch = new THREE.Mesh(new THREE.CylinderGeometry(0.02, 0.025, 0.14, 10), emis(0xffffcc, 1.5)); torch.position.set(0, -0.6, 0.05); torch.rotation.x = Math.PI / 2; armL.add(torch);
+  const legL = limb(0.065, 0.62, pants, 0.1, 0.85), legR = limb(0.065, 0.62, pants, -0.1, 0.85);
+  g.add(legL, legR);
+  const POSES = {
+    stand: { upperX: 0, drop: 0, armL: [0, 0, 0.08], armR: [0, 0, -0.08], legL: [0, 0, 0], legR: [0, 0, 0] },
+    sneak: { upperX: 0.2, drop: 0, armL: [0.3, 0, 0.1], armR: [-0.3, 0, -0.1], legL: [0, 0, 0], legR: [0, 0, 0], walk: true },
+    frozen: { upperX: -0.1, drop: 0, armL: [0, 0, 1.9], armR: [0, 0, -1.9], legL: [0, 0, 0.1], legR: [0, 0, -0.1] },
+    handsup: { upperX: -0.05, drop: 0, armL: [0, 0, 2.7], armR: [0, 0, -2.7], legL: [0, 0, 0.08], legR: [0, 0, -0.08] },
+    pinned: { upperX: 0.75, drop: 0, armL: [0.95, 0, -0.15], armR: [0.95, 0, 0.15], legL: [-0.1, 0, 0.1], legR: [-0.1, 0, -0.1] },
+    sit: { upperX: 0.1, drop: 0.78, armL: [0.9, 0, -0.1], armR: [0.9, 0, 0.1], legL: [-1.55, 0, 0.12], legR: [-1.55, 0, -0.12] },
+  };
+  const cur = JSON.parse(JSON.stringify(POSES.stand)); let tgt = POSES.stand; let phase = 0;
+  g.userData.setPose = (n, instant) => { tgt = POSES[n] || POSES.stand; if (instant) Object.assign(cur, JSON.parse(JSON.stringify(tgt))); };
+  g.userData.update = (dt) => {
+    const k = 1 - Math.exp(-dt * 9);
+    const mix = (a, b) => a.map((v, i) => v + (b[i] - v) * k);
+    cur.upperX += (tgt.upperX - cur.upperX) * k; cur.drop += (tgt.drop - cur.drop) * k;
+    for (const n of ['armL', 'armR', 'legL', 'legR']) cur[n] = mix(cur[n], tgt[n]);
+    let sw = 0; if (tgt.walk) { phase += dt * 6; sw = Math.sin(phase) * 0.45; }
+    upper.rotation.x = cur.upperX; upper.position.y = 0.85 - cur.drop;
+    armL.rotation.set(cur.armL[0] - sw * 0.5, cur.armL[1], cur.armL[2]); armR.rotation.set(cur.armR[0] + sw * 0.5, cur.armR[1], cur.armR[2]);
+    legL.rotation.set(cur.legL[0] + sw, cur.legL[1], cur.legL[2]); legR.rotation.set(cur.legR[0] - sw, cur.legR[1], cur.legR[2]);
+    legL.position.y = legR.position.y = 0.85 - cur.drop;
+  };
+  return g;
+}
+export const PROPS = { cake: makeCake, burglar: makeBurglar };
 
 // ---------------------------------------------------------------------------
 export const BUILDERS = {

@@ -198,15 +198,19 @@ function applyState(b) {
   }
   if (b.prop) {
     const o = current.props && current.props[b.prop.name];
+    if (o && b.prop.pose && o.userData.setPose) o.userData.setPose(b.prop.pose);
     if (o) propTweens.push({ o, t: 0, dur: b.prop.dur ?? 1, fp: o.position.clone(), tp: new THREE.Vector3(...(b.prop.pos || o.position.toArray())), fr: o.rotation.y, tr: b.prop.rotY ?? o.rotation.y, spin: b.prop.spin || 0, fs: o.scale.x, ts: b.prop.scale ?? o.scale.x, then: b.prop.remove ? () => { o.parent && o.parent.remove(o); delete current.props[b.prop.name]; } : null });
   }
   if (b.spawn && PROPS[b.spawn.name]) {
     const o = PROPS[b.spawn.name]();
-    o.position.set(...b.spawn.pos); o.scale.setScalar(0.01);
+    o.position.set(...b.spawn.pos); if (b.spawn.rotY) o.rotation.y = b.spawn.rotY; o.scale.setScalar(b.spawn.noPop ? 1 : 0.01);
+    if (o.userData.setPose) o.userData.setPose(b.spawn.pose || 'stand', true);
     current.group.add(o); (current.props ||= {})[b.spawn.name] = o;
-    propTweens.push({ o, t: 0, dur: b.spawn.dur ?? 0.9, fp: o.position.clone(), tp: o.position.clone(), fr: 0, tr: 0, spin: 0, fs: 0.01, ts: b.spawn.scale ?? 1 });
-    emotes.spawn('sparkle', new THREE.Vector3(b.spawn.pos[0], b.spawn.pos[1] + 0.15, b.spawn.pos[2]), { count: 6, size: 0.08, spread: 0.15, rise: 0.25 });
-    sfx('chime');
+    propTweens.push({ o, t: 0, dur: b.spawn.dur ?? 0.9, fp: o.position.clone(), tp: o.position.clone(), fr: o.rotation.y, tr: o.rotation.y, spin: 0, fs: o.scale.x, ts: b.spawn.noPop ? 1 : (b.spawn.scale ?? 1) });
+    if (!b.spawn.noPop) {
+      emotes.spawn('sparkle', new THREE.Vector3(b.spawn.pos[0], b.spawn.pos[1] + 0.15, b.spawn.pos[2]), { count: 6, size: 0.08, spread: 0.15, rise: 0.25 });
+      sfx('chime');
+    }
   }
   if (b.mouth !== undefined) chizuru.mouthForce = b.mouth === null ? null : b.mouth;
   if (b.cam !== undefined) moveCamera(b.cam, b.cut ? 0 : (b.camDur ?? 1.6));
@@ -288,6 +292,7 @@ function frame() {
   chizuru.update(dt, camera);
   emotes.update(dt);
   updateProps(dt);
+  if (current && current.props) for (const o of Object.values(current.props)) if (o.userData.update) o.userData.update(dt, t);
   updateCamera(dt);
   composer.render();
   requestAnimationFrame(frame);

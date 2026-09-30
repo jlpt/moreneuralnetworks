@@ -7,6 +7,7 @@ const SPEAKERS = {
   You: { color: '#7df9ff' },
   AYA: { color: '#8ff0d8' },
   System: { color: '#ffe066' },
+  Burglar: { color: '#c9c2b8' },
 };
 
 const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
