@@ -332,7 +332,7 @@ function buildApartment() {
 
   const lights = new THREE.Group(); group.add(lights);
   lights.add(new THREE.HemisphereLight(0xffe6d0, 0x2b2540, 0.9));
-  const warm = new THREE.PointLight(0xffb070, 22, 9); warm.position.set(-3.6, 1.5, -2.2); lights.add(warm);
+  const warm = new THREE.PointLight(0xffb070, 5, 7); warm.position.set(-3.4, 1.7, -1.6); lights.add(warm);
   const ceilL = new THREE.PointLight(0xfff0dd, 16, 9); ceilL.position.set(0, 2.6, 0.6); lights.add(ceilL);
   const cool = new THREE.DirectionalLight(0x8fb8ff, 1.4); cool.position.set(0, 3, -6); lights.add(cool);
 

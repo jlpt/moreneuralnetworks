@@ -96,4 +96,28 @@ export const chapters = [
       ideas: ['Head out into the rain together (I’ll show the walk home)', 'Ask her what she thinks of you so far', 'Ask AYA about the warranty or accessories first', 'Take her arm and go'],
     },
   },
+  {
+    id: 'ch4',
+    title: 'Home, 41F',
+    beats: [
+      { title: 'RAIN OVER SHIBUYA', subtitle: 'One umbrella. Two people. One of them is very good at keeping dry.', cardMs: 2800 },
+      { n: 'The doors slide shut behind you. Neon smears across the wet pavement. Chizuru opens a slim transparent umbrella and tilts it, precisely, so that exactly half of it covers you.' },
+      { who: 'Chizuru', say: 'Rain sensors indicate a 92% chance of this continuing until morning. I have calculated the shortest route home. It is also, coincidentally, the one with the fewest puddles.' },
+      { who: 'Chizuru', say: '*She glances up at you and then quickly back at the road.* You are getting wet on the left. Step closer. That is an instruction, not a request.' },
+      { scene: 'apartment', hud: { time: 'OCT 01, 2087 · 00:02' }, title: 'NEO-SHIBUYA TOWER · 41F', subtitle: 'Your apartment', place: 'door', pose: 'clasp', mood: 'neutral', look: 'camera', cam: 'scene', cut: true },
+      { n: 'The door chimes and the lights come up warm. Beyond the floor-to-ceiling window, flying cars stitch light through the storm clouds.' },
+      { who: 'Chizuru', say: '*She steps inside, slips off her shoes, and lines them up perfectly beside yours.*', walk: 'center', walkDur: 2.4, cam: { shot: 'medium' } },
+      { who: 'Chizuru', say: 'Scanning the residence.', fx: 'scan', look: [0, 1.3, 1], cam: { shot: 'bust' } },
+      { who: 'Chizuru', say: 'Cleanliness rating: thirty-four percent. Empty cups on the table: three. Plant status: thirsty. Owner status: …unexpectedly well-dressed.', mood: 'cold', pose: 'crossed', look: 'camera' },
+      { who: 'Chizuru', say: 'That last one is not a criticism. Please do not tell AYA that I complimented you.', mood: 'shy', emote: 'sweat' },
+      { n: 'She turns to the window and rests a hand against the glass. Reflected in it, her expression softens for a moment: no smile protocol, just quiet.', walk: 'window', walkDur: 2.2, pose: 'clasp', look: [0, 1.3, -3], cam: { shot: 'side' }, mood: 'neutral' },
+      { who: 'Chizuru', say: 'My database contains eleven thousand skylines. This is the first one I have seen with my own eyes.', mood: 'happy' },
+      { who: 'Chizuru', say: '*She looks back over her shoulder at you.* Thank you for bringing me here, Kazuya.', look: 'camera', emote: 'sparkle', rapport: 6, cam: { shot: 'close' } },
+      { who: 'Chizuru', say: 'Now. There is a charging cradle in the corner and a sofa that has clearly been abused. Which would you like me to attend to first: your home, or you?', pose: 'hips', mood: 'happy', cam: { shot: 'bust' } },
+    ],
+    turn: {
+      prompt: 'You are home with Chizuru. Cleanliness rating 34%, plant thirsty. What do you do?',
+      ideas: ['Tell her to attend to you: sit together on the sofa', 'Let her tidy up while you watch her work', 'Ask about her memories or what she can actually feel', 'Suggest making tea / dinner together'],
+    },
+  },
 ];
