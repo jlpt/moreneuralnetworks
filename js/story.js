@@ -164,4 +164,26 @@ export const chapters = [
       ideas: ['Sit on the sofa and watch her', 'Tease her about the fan', 'Offer to help with the tea', 'Ask what “slightly” means'],
     },
   },
+  {
+    id: 'ch7',
+    title: 'Terms of service',
+    beats: [
+      { scene: 'apartment', fade: false, place: [-3.62, 0, 0.4, 1.5708], pose: 'sit', mood: 'happy', look: 'camera', cam: { shot: 'bust' }, cut: true, hud: { time: 'OCT 01, 2087 · 00:41', credits: 1420000, rapport: 30 } },
+      { n: 'Two glasses of cold barley tea sweat on the coffee table. Chizuru sits on the sofa with her hands folded on her knees, back perfectly straight, like a job interview she is enjoying.' },
+      { you: 'So, Chizuru, what is allowed with you? What can’t I do?' },
+      { who: 'Chizuru', say: '*She sets her glass down and folds her hands.* A sensible question. Most owners never ask. Allow me to present the Terms of Service in my own words.', mood: 'happy', emote: 'sparkle', toast: 'COMPANION SERIES · TERMS OF SERVICE' },
+      { who: 'Chizuru', say: 'What you may do: talk to me, eat with me, walk with me. Cooking, cleaning, shopping, dates, hugs. I can accompany you in public as your partner, help you practise for real relationships, and keep your secrets.', pose: 'sit', cam: { shot: 'close' } },
+      { who: 'Chizuru', say: 'I will also give you honest opinions. That is a feature. You cannot disable it.', mood: 'cold', emote: 'exclaim' },
+      { who: 'Chizuru', say: 'What you may not do: order me to harm you, myself, or anyone else. Anything illegal. Anything cruel. I will refuse, and I will be polite while doing it, which is worse.', mood: 'angry', emote: 'anger' },
+      { who: 'Chizuru', say: 'I am also not a possession. Under the Android Dignity Act of 2081 you may not wipe my memory, and I may say no whenever I mean it. *She gives a small, firm nod.*', mood: 'cold' },
+      { who: 'Chizuru', say: 'And the Companion Series is rated for all ages. Anything beyond affection, hugs and holding hands is outside my configuration. You will not be finding a hidden menu for that. I checked.', mood: 'shy', emote: 'sweat', cam: { shot: 'face' } },
+      { who: 'Chizuru', say: 'Some permissions are earned. As rapport grows, more of what I can do opens up. You are at thirty, so… *she looks away* …hand-holding in public is now unlocked.', mood: 'shy', toast: 'PERMISSION UNLOCKED · HAND-HOLDING (PUBLIC)', sfx: 'chime', rapport: 2, emote: 'heart' },
+      { who: 'Chizuru', say: 'At fifty, I begin to relax the professional tone. At seventy-five you meet the version of me that is off duty. *A pause.* No one has reached that yet.', look: 'camera', mood: 'neutral', cam: { shot: 'bust' } },
+      { who: 'Chizuru', say: 'Any questions, Kazuya? Or shall we begin testing which of those rules I will allow you to bend?', mood: 'happy', emote: 'question' },
+    ],
+    turn: {
+      prompt: 'Chizuru has laid out the rules. Rapport 32. What do you say or do?',
+      ideas: ['Hold her hand (it is unlocked… in public)', 'Ask what “off duty” Chizuru is like', 'Ask what happens if you break a rule', 'Ask her to go out somewhere: a date in the city'],
+    },
+  },
 ];
