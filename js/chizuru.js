@@ -112,6 +112,17 @@ export const POSES = {
     aL: [0, 0, 0.95], eL: [0, 0, 0.45], aR: [0, 0, -0.95], eR: [0, 0, -0.45],
     head: [-0.2, 0, 0],
   },
+  // dance: arms pumping, hips swinging (animated in update via poseDef.dance)
+  dance: {
+    dance: 'pop',
+    aL: [0.1, 0, -0.25], eL: [-0.3, 0, 0.9], aR: [0.1, 0, 0.25], eR: [-0.3, 0, -0.9],
+    head: [0.03, 0, 0],
+  },
+  dance2: {
+    dance: 'sway',
+    aL: [0, 0, 0.95], eL: [0, 0, 0.45], aR: [0, 0, -0.95], eR: [0, 0, -0.45],
+    head: [-0.1, 0, 0],
+  },
   // seated on a sofa / chair, hands resting on lap
   sit: {
     drop: 0.36,
@@ -367,6 +378,19 @@ export class Chizuru {
     add('spine', 0, Math.sin(t * 0.55) * 0.02, Math.sin(t * 0.7) * 0.012);
     add('head', Math.sin(t * 0.8) * 0.01, 0, Math.sin(t * 0.6) * 0.012);
     add('aL', 0, 0, breathe * 0.008); add('aR', 0, 0, -breathe * 0.008);
+    this.bobOff = 0;
+    if (this.poseDef.dance) {
+      this.danceT = (this.danceT || 0) + dt * 4 * Math.PI; // 2 beats per second
+      const p = this.danceT, s = Math.sin(p / 2), b = Math.sin(p);
+      this.bobOff = (1 - Math.cos(p)) * 0.022;
+      add('hips', 0, s * 0.3, b * 0.05);
+      add('spine', 0, -s * 0.2, -b * 0.04);
+      add('head', b * 0.05, -s * 0.12, s * 0.08);
+      add('kneeL', Math.max(0, s) * 0.55 + 0.12, 0, 0); add('kneeR', Math.max(0, -s) * 0.55 + 0.12, 0, 0);
+      add('legL', -Math.max(0, s) * 0.3 - 0.06, 0, 0); add('legR', -Math.max(0, -s) * 0.3 - 0.06, 0, 0);
+      if (this.poseDef.dance === 'pop') { add('aL', 0, 0, s * 0.75); add('aR', 0, 0, s * 0.75); add('eL', 0, 0, -b * 0.25); add('eR', 0, 0, b * 0.25); }
+      else { add('aL', 0, 0, -s * 0.35); add('aR', 0, 0, -s * 0.35); add('eL', 0, 0, b * 0.2); add('eR', 0, 0, -b * 0.2); }
+    }
     if (this.poseDef.wave) {
       const w = Math.sin(t * 9);
       add(this.poseDef.wave === 'R' ? 'eR' : 'eL', 0, 0, (this.poseDef.wave === 'R' ? -1 : 1) * w * 0.35);
@@ -416,7 +440,7 @@ export class Chizuru {
     // apply to bones (top-down so each parent's result is final before its children)
     this.group.getWorldQuaternion(_rootQ);
     const hips = this.bones.hips;
-    hips.position.z = this.hipsRestZ - this.drop;
+    hips.position.z = this.hipsRestZ - this.drop - (this.bobOff || 0);
     this.group.updateMatrixWorld(true);
     for (const key of CHAIN) {
       const b = this.bones[key]; if (!b) continue;

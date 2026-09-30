@@ -10,7 +10,7 @@ import { Chizuru, POSES } from './chizuru.js';
 import { BUILDERS, PROPS, loadClassroom } from './scenes.js';
 import { Emotes } from './fx.js';
 import { UI } from './ui.js';
-import { sfx, unlockAudio, setMuted, isMuted } from './audio.js';
+import { sfx, music, unlockAudio, setMuted, isMuted } from './audio.js';
 import { chapters, meta } from './story.js';
 
 const $ = (id) => document.getElementById(id);
@@ -171,6 +171,8 @@ function applyState(b) {
   if (b.show) chizuru.group.visible = true;
   if (b.android !== undefined) chizuru.setAndroid(b.android);
   if (b.tint) chizuru.setTint(b.tint, b.bright ?? current.bright);
+  if (b.music !== undefined) music(b.music === 'on');
+  if (b.party !== undefined) { ctx.party = !!b.party; bloom.strength = b.party ? 0.75 : 0.5; }
   if (b.style) chizuru.setStyle(b.style);
   if (b.pose) chizuru.setPose(b.pose, !!b.instant);
   if (b.mood) chizuru.setMood(b.mood);

@@ -40,6 +40,24 @@ const SFX = {
   door: () => { tone(200, 0.15, { type: 'square', vol: 0.05, slide: 200 }); tone(400, 0.2, { type: 'square', vol: 0.05, at: 0.12 }); },
 };
 
+// A tiny 124 bpm synth loop for dance scenes.
+let musicTimer = null, musicStep = 0;
+export function music(on) {
+  if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
+  if (!on || muted || !ensure()) return;
+  musicStep = 0;
+  const bass = [55, 0, 55, 0, 65.4, 0, 55, 0, 73.4, 0, 73.4, 0, 49, 0, 55, 82.4];
+  const arp = [440, 523, 659, 784, 659, 523, 587, 740];
+  musicTimer = setInterval(() => {
+    const s = musicStep++ % 16;
+    if (s % 4 === 0) tone(130, 0.18, { type: 'sine', vol: 0.22, slide: -100 });
+    if (s % 4 === 2) tone(9000, 0.03, { type: 'square', vol: 0.02 });
+    if (bass[s]) tone(bass[s], 0.2, { type: 'sawtooth', vol: 0.06 });
+    if (s % 2 === 1) tone(arp[(musicStep >> 1) % arp.length], 0.12, { type: 'triangle', vol: 0.05 });
+    if (s === 0 || s === 8) tone(arp[0] * 2, 0.4, { type: 'sine', vol: 0.03 });
+  }, (60 / 124 / 4) * 1000);
+}
+
 export function sfx(name) { (SFX[name] || SFX.blip)(); }
 export function unlockAudio() { ensure(); if (ctx && ctx.state === 'suspended') ctx.resume(); }
 export function setMuted(m) { muted = m; }

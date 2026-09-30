@@ -263,4 +263,27 @@ export const chapters = [
       ideas: ['Say yes: share a second cake with her', 'Ask what else the Dream Lounge Sandbox lets her build', 'Point out the cream she missed (or wipe it off yourself)', 'Ask to go out: dinner date in the city'],
     },
   },
+  {
+    id: 'ch11',
+    title: 'Neon Heartbeat',
+    beats: [
+      { scene: 'apartment', fade: false, place: [0, 0, 0.3, 0], pose: 'clasp', mood: 'happy', look: 'camera', cam: { shot: 'bust' }, cut: true, hud: { time: 'OCT 01, 2087 · 01:40', credits: 1420000, rapport: 46 }, style: { shirt: 0, hair: 'default', scale: 1 }, party: false, music: 'off' },
+      { you: 'Can you do a hot dance?' },
+      { who: 'Chizuru', say: '*She freezes for exactly one second.* “Hot.” Again with the thermal terminology. You are doing this on purpose.', mood: 'shock', emote: 'sweat', pose: 'crossed' },
+      { who: 'Chizuru', say: 'The Companion Series is rated for all ages, so I will interpret “hot” as “high-energy, well-choreographed, and technically impressive.” That I can do. *She lifts her chin.* Very well.', mood: 'cold', pose: 'hips' },
+      { who: 'Chizuru', say: 'Dream Lounge audio, please. Track forty-four: “Neon Heartbeat”. Stand back and try to keep up.', mood: 'happy', emote: ['music', 'sparkle'], toast: 'DREAM LOUNGE · NOW PLAYING: NEON HEARTBEAT', sfx: 'chime' },
+      { n: 'The lights drop. Magenta and cyan sweep across the room. The bass kicks in, and she starts to move.', party: true, music: 'on', pose: 'dance', mood: 'happy', look: 'camera', cam: { shot: 'full' }, camDur: 1.5, wait: 7 },
+      { n: 'The camera circles as she hits every beat: arm pumps, hip sways, hair flying, cyan halo flashing on the downbeat.', cam: { shot: 'side' }, camDur: 3, emote: ['music', 'star'], wait: 6 },
+      { n: 'She flicks both arms overhead for the chorus, spinning in a slow, precise circle.', pose: 'dance2', cam: { shot: 'low' }, camDur: 2, emote: ['sparkle', 'heart'], wait: 7 },
+      { n: 'One last pump, and she stops dead on the final beat, one hand on her hip, the other pointing straight at you.', pose: 'point', mood: 'happy', look: 'camera', cam: { shot: 'bust' }, party: false, music: 'off', emote: 'star', fx: 'flash', wait: 1.5 },
+      { who: 'Chizuru', say: 'Choreography: two hundred and six movements, zero errors. *She is slightly out of breath, which she should not be able to be.*', pose: 'hips', mood: 'happy', rapport: 4 },
+      { n: 'The fan behind her collar whirs up again, louder than before.', fx: 'glitch', mood: 'shy', emote: 'sweat', cam: { shot: 'face' } },
+      { who: 'Chizuru', say: 'Thermal sensors report forty-three degrees. Before you say it: that was an accurate use of “hot.” I am aware of the irony.', pose: 'cheeks', mood: 'shy', emote: 'heart', rapport: 3 },
+      { who: 'Chizuru', say: '…Did you enjoy it, Kazuya? *She looks up at you, trying and failing to look professional.* Be honest. I will know if you are lying.', look: 'camera', pose: 'clasp', cam: { shot: 'close' } },
+    ],
+    turn: {
+      prompt: 'Chizuru just finished a full dance routine and is waiting for your verdict. Rapport 53. What do you say or do?',
+      ideas: ['Applaud and tell her it was incredible', 'Tease her about the fan, or ask her to teach you the dance', 'Ask her to dance with you (hand-holding is unlocked)', 'Suggest going out: a night walk or dinner in the city'],
+    },
+  },
 ];

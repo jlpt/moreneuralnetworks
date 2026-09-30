@@ -335,6 +335,9 @@ function buildApartment() {
   const warm = new THREE.PointLight(0xffb070, 5, 7); warm.position.set(-3.4, 1.7, -1.6); lights.add(warm);
   const ceilL = new THREE.PointLight(0xfff0dd, 16, 9); ceilL.position.set(0, 2.6, 0.6); lights.add(ceilL);
   const cool = new THREE.DirectionalLight(0x8fb8ff, 1.4); cool.position.set(0, 3, -6); lights.add(cool);
+  // disco lights (only lit while ctx.party is on)
+  const disco1 = new THREE.PointLight(0xff3fa4, 0, 8), disco2 = new THREE.PointLight(0x33e0ff, 0, 8), disco3 = new THREE.PointLight(0xffe066, 0, 6);
+  lights.add(disco1, disco2, disco3);
 
   return {
     group, name: 'apartment', title: 'Your apartment — Neo-Shibuya Tower, 41F',
@@ -343,7 +346,15 @@ function buildApartment() {
     anchors: { center: [0, 0, -0.6, 0], window: [0, 0, -2.0, 0], door: [1.2, 0, 3.0, Math.PI], dock: [3.7, 0.08, -1.55, -0.2], sofa: [-3.55, 0, 0.5, Math.PI / 2], table: [-0.9, 0, 0.9, 0.2] },
     tint: 0xfff0e6, bright: 0.96,
     props: { table: tbl, sofa },
-    update(dt, t, ctx) { sky.update(dt, t); dr.material.color.setHex(0x66e0ff).multiplyScalar(1.6 + Math.sin(t * 2) * 0.5); },
+    update(dt, t, ctx) {
+      sky.update(dt, t);
+      const on = ctx.party ? 1 : 0, k = 1 - Math.exp(-dt * 4);
+      disco1.intensity += (on * 18 - disco1.intensity) * k; disco2.intensity += (on * 18 - disco2.intensity) * k; disco3.intensity += (on * 9 - disco3.intensity) * k;
+      disco1.position.set(Math.cos(t * 1.7) * 2.6, 2.2, 0.5 + Math.sin(t * 1.7) * 1.6);
+      disco2.position.set(Math.cos(t * 1.7 + 3.1) * 2.6, 2.0, 0.5 + Math.sin(t * 1.7 + 3.1) * 1.6);
+      disco3.position.set(0.6, 1.2 + Math.sin(t * 6) * 0.3, 2.4);
+      ceilL.intensity = ctx.party ? 3 : 16; warm.intensity = ctx.party ? 1 : 5;
+      dr.material.color.setHex(0x66e0ff).multiplyScalar(1.6 + Math.sin(t * 2) * 0.5); },
   };
 }
 
