@@ -1,0 +1,346 @@
+[
+{
+"frames": 60
+},
+{
+"press": "START",
+"after": 60
+},
+{
+"skipdlg": true
+},
+{
+"frames": 80
+},
+{
+"skipdlg": true
+},
+{
+"goto": [
+64,
+140
+],
+"order": "yx"
+},
+{
+"goto": [
+250,
+140
+],
+"order": "xy",
+"room": 5
+},
+{
+"goto": [
+96,
+140
+],
+"order": "xy"
+},
+{
+"goto": [
+96,
+80
+],
+"order": "yx"
+},
+{
+"goto": [
+120,
+80
+],
+"order": "xy"
+},
+{
+"goto": [
+120,
+0
+],
+"order": "yx",
+"room": 1
+},
+{
+"goto": [
+120,
+100
+],
+"order": "yx"
+},
+{
+"goto": [
+192,
+100
+],
+"order": "xy"
+},
+{
+"shot": "07_tutor_room"
+},
+{
+"talk": true,
+"face": "UP"
+},
+{
+"expect": {
+"flags": 1,
+"spells_known": 1
+},
+"label": "learned water bolt"
+},
+{
+"shot": "08_after_tutor"
+},
+{
+"cast": 3,
+"face": "LEFT",
+"gap": 20
+},
+{
+"goto": [
+192,
+120
+],
+"order": "yx"
+},
+{
+"goto": [
+-20,
+120
+],
+"order": "xy",
+"room": 0
+},
+{
+"frames": 3
+},
+{
+"shot": "10_river"
+},
+{
+"hunt": [
+8
+],
+"max": 4000
+},
+{
+"shot": "11_bullies_gone"
+},
+{
+"skipdlg": true
+},
+{
+"goto": [
+80,
+104
+],
+"order": "yx"
+},
+{
+"goto": [
+80,
+104
+],
+"order": "xy"
+},
+{
+"talk": true,
+"face": "UP"
+},
+{
+"expect": {
+"flags": 7,
+"p_hpmax": 7
+},
+"label": "befriended Mira"
+},
+{
+"shot": "12_mira"
+},
+{
+"exit": "E"
+},
+{
+"walk": [
+12,
+5
+]
+},
+{
+"talk": true,
+"face": "UP"
+},
+{
+"expect": {
+"flags": 15,
+"spells_known": 2
+},
+"label": "learned fireball"
+},
+{
+"exit": "S"
+},
+{
+"frames": 3
+},
+{
+"shot": "13_dad_moved"
+},
+{
+"exit": "E"
+},
+{
+"frames": 3
+},
+{
+"shot": "14_forest"
+},
+{
+"hunt": [
+6,
+7
+],
+"max": 5000
+},
+{
+"shot": "15_forest_clear"
+},
+{
+"exit": "E"
+},
+{
+"frames": 3
+},
+{
+"shot": "16_lake"
+},
+{
+"hunt": [
+6,
+7
+],
+"max": 5000
+},
+{
+"frames": 700
+},
+{
+"exit": "N"
+},
+{
+"frames": 20
+},
+{
+"shot": "17_boss_intro"
+},
+{
+"skipdlg": true
+},
+{
+"frames": 60
+},
+{
+"shot": "18_boss"
+},
+{
+"poke": {
+"p_mp": 20,
+"p_mpmax": 20,
+"p_hp": 9,
+"p_hpmax": 9
+}
+},
+{
+"hunt": [
+9
+],
+"max": 8000,
+"vertical": true
+},
+{
+"shot": "19_after_boss"
+},
+{
+"skipdlg": true
+},
+{
+"frames": 30
+},
+{
+"shot": "20_after_boss_dlg"
+},
+{
+"exit": "S"
+},
+{
+"exit": "W"
+},
+{
+"exit": "W"
+},
+{
+"expect": {
+"flags": 63
+},
+"label": "wyrm defeated"
+},
+{
+"walk": [
+6,
+4
+]
+},
+{
+"walk": [
+6,
+3
+]
+},
+{
+"exit": "N"
+},
+{
+"walk": [
+12,
+4
+]
+},
+{
+"talk": true,
+"face": "UP"
+},
+{
+"frames": 60
+},
+{
+"expect": {
+"mode": 1,
+"story_kind": 2
+},
+"label": "ending started"
+},
+{
+"shot": "21_ending"
+},
+{
+"skipdlg": true
+},
+{
+"frames": 200
+},
+{
+"shot": "22_final"
+},
+{
+"press": "START",
+"after": 120
+},
+{
+"shot": "23_back_to_title"
+},
+{
+"expect": {
+"mode": 0
+},
+"label": "back at title"
+}
+]
