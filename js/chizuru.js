@@ -1,0 +1,427 @@
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+// ---------------------------------------------------------------------------
+// Pose library.
+// Each entry is a per-bone rotation *delta* [x, y, z] in radians, expressed in the
+// character's own frame (she faces +Z, +X is her left, +Y is up) and applied on top of
+// the parent bone's result. The rig ships in a T-pose, so "arms down" is a Z rotation.
+// ---------------------------------------------------------------------------
+const B = {
+  // arms hanging relaxed
+  stand: {
+    aL: [0.05, 0, -1.32], eL: [-0.2, -0.1, 0], aR: [0.05, 0, 1.32], eR: [-0.2, 0.1, 0],
+  },
+};
+
+export const POSES = {
+  stand: B.stand,
+  // polite, hands clasped low in front (her "professional rental girlfriend" stance)
+  clasp: {
+    aL: [-0.1, 0, -1.28], eL: [-1.45, -0.75, 0], wL: [0, 0, 0],
+    aR: [-0.1, 0, 1.28], eR: [-1.45, 0.75, 0],
+    head: [0.02, 0, 0],
+  },
+  // android "standby": limp, head lowered
+  standby: {
+    aL: [0.08, 0, -1.3], eL: [-0.1, 0, 0], aR: [0.08, 0, 1.3], eR: [-0.1, 0, 0],
+    head: [0.42, 0, 0], neck: [0.15, 0, 0], spine: [0.05, 0, 0],
+  },
+  wave: {
+    aL: [0.05, 0, -1.2], eL: [-0.22, 0, 0],
+    aR: [-0.4, 0, 0.3], eR: [0, 0, -1.75], wave: 'R',
+  },
+  bow: {
+    aL: [-0.05, 0, -1.3], eL: [-1.35, -0.6, 0], aR: [-0.05, 0, 1.3], eR: [-1.35, 0.6, 0],
+    spine: [0.5, 0, 0], chest: [0.28, 0, 0], neck: [0.1, 0, 0], head: [0.1, 0, 0],
+  },
+  crossed: {
+    aL: [-0.35, 0, -1.15], eL: [-1.45, -1.35, 0.0],
+    aR: [-0.35, 0, 1.15], eR: [-1.45, 1.35, 0.0],
+    head: [0, 0, 0.04],
+  },
+  hips: {
+    aL: [0.1, 0, -0.5], eL: [-0.5, 0, -1.75], wL: [0, 0, 0.2],
+    aR: [0.1, 0, 0.5], eR: [-0.5, 0, 1.75], wR: [0, 0, -0.2],
+    spine: [0, 0.0, 0.03], hips: [0, 0, 0.0],
+  },
+  cheeks: {
+    aL: [-0.3, 0, -1.15], eL: [-2.4, -1.0, 0],
+    aR: [-0.3, 0, 1.15], eR: [-2.4, 1.0, 0],
+    head: [0.1, 0, 0], spine: [0.05, 0, 0],
+  },
+  behind: {
+    aL: [0.55, 0, -1.05], eL: [0.35, 0.65, 0], aR: [0.55, 0, 1.05], eR: [0.35, -0.65, 0],
+    spine: [-0.05, 0, 0], chest: [-0.05, 0, 0],
+  },
+  reach: {
+    aL: [0.05, 0, -1.2], eL: [-0.22, 0, 0],
+    aR: [0.3, 1.35, 0], eR: [-0.4, 0.15, 0], wR: [0, 0, 0.0],
+  },
+  chin: {
+    aL: [-0.35, 0, -1.2], eL: [-1.3, -0.9, 0],
+    aR: [-0.5, 0, 1.1], eR: [-2.45, 1.45, 0],
+    head: [0.05, 0, -0.08],
+  },
+  point: {
+    aL: [0.05, 0, -1.2], eL: [-0.22, 0, 0],
+    aR: [0.05, 1.4, 0], eR: [0, 0, 0],
+  },
+  // seated on a sofa / chair, hands resting on lap
+  sit: {
+    drop: 0.46,
+    hips: [0, 0, 0],
+    legL: [-1.5, 0.08, 0.0], kneeL: [1.5, 0, 0], ankL: [0.15, 0, 0],
+    legR: [-1.5, -0.08, 0.0], kneeR: [1.5, 0, 0], ankR: [0.15, 0, 0],
+    aL: [-0.25, 0, -1.2], eL: [-1.15, -0.85, 0],
+    aR: [-0.25, 0, 1.2], eR: [-1.15, 0.85, 0],
+    spine: [-0.08, 0, 0],
+  },
+};
+
+// Per-bone Euler orders (arms/legs swing about Z then Y then X, everything else X then Y).
+const ORDER = { aL: 'XYZ', aR: 'XYZ', legL: 'XYZ', legR: 'XYZ' };
+
+// Bone name prefixes. (The glTF exporter turned spaces into underscores.)
+const BONES = {
+  hips: 'Hips_', spine: 'Spine_', chest: 'Chest_', neck: 'Neck_', head: 'Head_',
+  eyeL: 'Eye_L_0', eyeR: 'Eye_R_0',
+  sL: 'Left_shoulder_', aL: 'Left_arm_', eL: 'Left_elbow_', wL: 'Left_wrist_',
+  sR: 'Right_shoulder_', aR: 'Right_arm_', eR: 'Right_elbow_', wR: 'Right_wrist_',
+  legL: 'Left_leg_', kneeL: 'Left_knee_', ankL: 'Left_ankle_',
+  legR: 'Right_leg_', kneeR: 'Right_knee_', ankR: 'Right_ankle_',
+};
+// top-down evaluation order
+const CHAIN = ['hips', 'spine', 'chest', 'neck', 'head', 'sL', 'aL', 'eL', 'wL', 'sR', 'aR', 'eR', 'wR', 'legL', 'kneeL', 'ankL', 'legR', 'kneeR', 'ankR'];
+
+const MOODS = {
+  neutral: { led: 0x66e0ff, blush: 0, tilt: [0, 0, 0] },
+  happy: { led: 0xffd0e8, blush: 0.25, tilt: [0, 0, 0.08] },
+  shy: { led: 0xff8fc7, blush: 1, tilt: [0.18, 0, 0.1], away: 0.5 },
+  angry: { led: 0xff4b4b, blush: 0.15, tilt: [0.05, 0, -0.05] },
+  sad: { led: 0x6a8cff, blush: 0, tilt: [0.28, 0, 0.05] },
+  shock: { led: 0xfff06a, blush: 0, tilt: [-0.08, 0, 0] },
+  cold: { led: 0x9fd8ff, blush: 0, tilt: [-0.05, 0, 0] },
+  sleepy: { led: 0x8a7bff, blush: 0.1, tilt: [0.25, 0, 0.1] },
+};
+
+const _q = new THREE.Quaternion();
+const _q2 = new THREE.Quaternion();
+const _e = new THREE.Euler();
+const _v = new THREE.Vector3();
+const _rootQ = new THREE.Quaternion();
+const _rootQi = new THREE.Quaternion();
+const _pw = new THREE.Quaternion();
+const _pwi = new THREE.Quaternion();
+
+export class Chizuru {
+  constructor() {
+    this.group = new THREE.Group(); // world placement (position + yaw)
+    this.group.name = 'ChizuruRoot';
+    this.model = null;
+    this.bones = {};
+    this.rest = {};        // rest local quaternions
+    this.cur = {};         // current smoothed delta per bone key
+    this.target = {};      // target delta per bone key
+    this.poseName = 'stand';
+    this.poseDef = POSES.stand;
+    this.drop = 0;         // seated drop (smoothed)
+    this.dropTarget = 0;
+    this.lookTarget = 'camera';
+    this.moodName = 'neutral';
+    this.talking = false;
+    this.time = Math.random() * 10;
+    this.blush = 0;
+    this.blushTarget = 0;
+    this.moving = 0;       // 0..1 walking blend
+    this.walk = null;
+    this.headYaw = 0; this.headPitch = 0;
+    this.eyeYaw = 0; this.eyePitch = 0;
+    this.ledColor = new THREE.Color(0x66e0ff);
+    this.ledTarget = new THREE.Color(0x66e0ff);
+    this.androidParts = new THREE.Group();
+    this.flash = 0;
+    this.bright = 1;
+    this.tintColor = new THREE.Color(1, 1, 1);
+  }
+
+  async load(url, onProgress) {
+    const gltf = await new GLTFLoader().loadAsync(url, onProgress);
+    this.model = gltf.scene;
+    this.group.add(this.model);
+    this.model.traverse((o) => {
+      if (o.isBone) for (const k in BONES) if (!this.bones[k] && o.name.startsWith(BONES[k])) this.bones[k] = o;
+      if (o.isSkinnedMesh) {
+        o.frustumCulled = false;
+        const m = o.material;
+        m.toneMapped = false;
+        // the export marks everything as alpha-blended, which sorts badly; use cut-outs instead
+        m.transparent = false; m.alphaTest = 0.3; m.depthWrite = true;
+        if (m.name === 'eyeline') o.renderOrder = 3;
+        if (m.name === 'mouth') o.renderOrder = 4;
+        if (m.name === 'material') o.renderOrder = 2;
+        (this.mats ||= []).push(m);
+      }
+    });
+    this.model.updateMatrixWorld(true);
+    for (const k of CHAIN) {
+      const b = this.bones[k];
+      if (!b) { console.warn('missing bone', k); continue; }
+      this.rest[k] = b.quaternion.clone();
+      this.cur[k] = [0, 0, 0];
+      this.target[k] = [0, 0, 0];
+    }
+    this.hipsRestY = this.bones.hips.position.y;
+    this.buildFace();
+    this.buildAndroidParts();
+    this.setPose('stand', true);
+    return this;
+  }
+
+  // Overlay planes for the animated mouth + blush, parented to the head bone.
+  buildFace() {
+    const head = this.bones.head;
+    const mk = (draw, w, h, pos) => {
+      const c = document.createElement('canvas'); c.width = 128; c.height = 64;
+      draw(c.getContext('2d'));
+      const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace;
+      const m = new THREE.MeshBasicMaterial({ map: t, transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
+      const p = new THREE.Mesh(new THREE.PlaneGeometry(w, h), m);
+      p.position.set(...pos); p.renderOrder = 6;
+      head.add(p);
+      return p;
+    };
+    const F = this.faceCfg = { z: 0.108, mouthY: -0.0145, cheekY: 0.018, cheekX: 0.046 };
+    this.mouth = mk((g) => {
+      g.fillStyle = '#7a2436';
+      g.beginPath(); g.ellipse(64, 32, 50, 26, 0, 0, 7); g.fill();
+      g.fillStyle = '#ff7f96';
+      g.beginPath(); g.ellipse(64, 46, 30, 12, 0, 0, 7); g.fill();
+      g.fillStyle = '#fff';
+      g.beginPath(); g.ellipse(64, 15, 34, 7, 0, 0, 7); g.fill();
+    }, 0.026, 0.02, [0, F.mouthY, F.z]);
+    this.mouth.material.opacity = 0;
+    const blushTex = (g) => {
+      const gr = g.createRadialGradient(64, 32, 2, 64, 32, 60);
+      gr.addColorStop(0, 'rgba(255,90,120,0.85)'); gr.addColorStop(1, 'rgba(255,90,120,0)');
+      g.fillStyle = gr; g.fillRect(0, 0, 128, 64);
+    };
+    this.blushL = mk(blushTex, 0.05, 0.026, [F.cheekX, F.cheekY, F.z - 0.004]);
+    this.blushR = mk(blushTex, 0.05, 0.026, [-F.cheekX, F.cheekY, F.z - 0.004]);
+    this.blushL.rotation.y = 0.25; this.blushR.rotation.y = -0.25;
+  }
+
+  // Cyan "sensor" ear-pieces, a halo ring and a neck LED so she reads as an android.
+  buildAndroidParts() {
+    const head = this.bones.head;
+    this.ledMat = new THREE.MeshBasicMaterial({ color: 0x66e0ff, toneMapped: false });
+    const ear = (side) => {
+      const g = new THREE.Group();
+      const shell = new THREE.Mesh(new THREE.CapsuleGeometry(0.0095, 0.03, 4, 12), new THREE.MeshStandardMaterial({ color: 0xf2f5fa, metalness: 0.6, roughness: 0.25 }));
+      const glow = new THREE.Mesh(new THREE.CapsuleGeometry(0.0055, 0.03, 4, 12), this.ledMat);
+      glow.position.x = side * 0.007;
+      g.add(shell, glow);
+      g.position.set(side * 0.079, 0.046, -0.003);
+      g.rotation.z = side * 0.05;
+      return g;
+    };
+    this.earL = ear(1); this.earR = ear(-1);
+    head.add(this.earL, this.earR);
+
+    this.haloMat = new THREE.MeshBasicMaterial({ color: 0x66e0ff, transparent: true, opacity: 0.85, toneMapped: false, side: THREE.DoubleSide });
+    this.halo = new THREE.Mesh(new THREE.TorusGeometry(0.115, 0.0035, 8, 64), this.haloMat);
+    this.halo.position.set(0, 0.155, -0.02);
+    this.halo.rotation.x = Math.PI / 2 - 0.25;
+    head.add(this.halo);
+    // scan ring (used by the `fx: 'scan'` beat)
+    this.scanRing = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.006, 8, 64), new THREE.MeshBasicMaterial({ color: 0x66e0ff, transparent: true, opacity: 0, toneMapped: false }));
+    this.scanRing.rotation.x = Math.PI / 2;
+    this.group.add(this.scanRing);
+    this.scan = 0;
+    this.haloOn = true;
+  }
+
+  setAndroid(on) {
+    this.haloOn = on;
+    for (const o of [this.earL, this.earR, this.halo]) o.visible = on;
+  }
+
+  // -------------------------------------------------------------------------
+  setPose(name, instant = false) {
+    const def = POSES[name] || POSES.stand;
+    this.poseName = name; this.poseDef = def;
+    for (const k of CHAIN) this.target[k] = (def[k] || [0, 0, 0]).slice();
+    // the base "arms hang down" pose is used when a pose doesn't specify arms
+    for (const k of ['aL', 'aR', 'eL', 'eR']) if (!def[k]) this.target[k] = POSES.stand[k].slice();
+    this.dropTarget = def.drop || 0;
+    if (instant) { for (const k of CHAIN) this.cur[k] = this.target[k].slice(); this.drop = this.dropTarget; }
+  }
+
+  setMood(name) {
+    const m = MOODS[name] || MOODS.neutral;
+    this.moodName = name in MOODS ? name : 'neutral';
+    this.ledTarget.setHex(m.led);
+    this.blushTarget = m.blush;
+  }
+
+  setLook(t) { this.lookTarget = t; }
+  setTalking(v) { this.talking = v; }
+  setTint(c, bright = 1) { this.tintColor.set(c); this.bright = bright; }
+
+  place(x, y, z, ry) {
+    this.group.position.set(x, y, z);
+    if (ry !== undefined) this.group.rotation.y = ry;
+    this.walk = null;
+  }
+
+  walkTo(x, y, z, dur = 2, ry) {
+    this.walk = { from: this.group.position.clone(), to: new THREE.Vector3(x, y, z), t: 0, dur, ry, fromRy: this.group.rotation.y };
+  }
+
+  faceYaw(ry) { this.group.rotation.y = ry; }
+
+  headWorld(out = new THREE.Vector3()) { return this.bones.head.getWorldPosition(out); }
+
+  // -------------------------------------------------------------------------
+  update(dt, camera, lookPoint) {
+    this.time += dt;
+    const t = this.time;
+    const k = 1 - Math.exp(-dt * 7);
+
+    // walking
+    let walkPhase = 0;
+    if (this.walk) {
+      const w = this.walk;
+      w.t += dt;
+      const u = Math.min(1, w.t / w.dur);
+      const e = u * u * (3 - 2 * u);
+      this.group.position.lerpVectors(w.from, w.to, e);
+      const dir = _v.subVectors(w.to, w.from);
+      if (dir.lengthSq() > 1e-4 && u < 1) {
+        const want = Math.atan2(dir.x, dir.z);
+        let d = want - this.group.rotation.y; d = Math.atan2(Math.sin(d), Math.cos(d));
+        this.group.rotation.y += d * (1 - Math.exp(-dt * 8));
+      }
+      walkPhase = w.t * 7.5;
+      this.moving += ((u < 1 ? 1 : 0) - this.moving) * (1 - Math.exp(-dt * 8));
+      if (u >= 1) { if (w.ry !== undefined) { this.walk = { ...w, from: w.to.clone(), t: 0, dur: 0.001, faceOnly: true }; } else this.walk = null; }
+    } else this.moving += (0 - this.moving) * (1 - Math.exp(-dt * 8));
+
+    // smooth pose
+    for (const key of CHAIN) {
+      const c = this.cur[key], tg = this.target[key];
+      for (let i = 0; i < 3; i++) c[i] += (tg[i] - c[i]) * k;
+    }
+    this.drop += (this.dropTarget - this.drop) * k;
+
+    // procedural overlays (breathing, sway, talking, walking, wave)
+    const ov = {};
+    const add = (key, x, y, z) => { const o = (ov[key] ||= [0, 0, 0]); o[0] += x; o[1] += y; o[2] += z; };
+    const breathe = Math.sin(t * 1.9);
+    add('chest', breathe * 0.012, 0, 0);
+    add('spine', 0, Math.sin(t * 0.55) * 0.02, Math.sin(t * 0.7) * 0.012);
+    add('head', Math.sin(t * 0.8) * 0.01, 0, Math.sin(t * 0.6) * 0.012);
+    add('aL', 0, 0, breathe * 0.008); add('aR', 0, 0, -breathe * 0.008);
+    if (this.poseDef.wave) {
+      const w = Math.sin(t * 9);
+      add(this.poseDef.wave === 'R' ? 'eR' : 'eL', 0, 0, (this.poseDef.wave === 'R' ? -1 : 1) * w * 0.35);
+    }
+    if (this.talking) {
+      add('head', Math.sin(t * 5.3) * 0.03, Math.sin(t * 2.9) * 0.04, 0);
+      add('spine', Math.sin(t * 3.1) * 0.012, 0, 0);
+    }
+    if (this.moving > 0.01) {
+      const m = this.moving;
+      const s = Math.sin(walkPhase);
+      add('legL', s * 0.55 * m, 0, 0); add('legR', -s * 0.55 * m, 0, 0);
+      add('kneeL', Math.max(0, -s) * 0.7 * m, 0, 0); add('kneeR', Math.max(0, s) * 0.7 * m, 0, 0);
+      add('aL', -s * 0.25 * m, 0, 0); add('aR', s * 0.25 * m, 0, 0);
+      add('spine', 0, s * 0.06 * m, 0);
+      add('hips', 0, -s * 0.05 * m, 0);
+    }
+
+    // mood tilt
+    const mood = MOODS[this.moodName] || MOODS.neutral;
+    add('head', mood.tilt[0], mood.tilt[1], mood.tilt[2]);
+    if (this.moodName === 'shy') { add('spine', 0.05, 0, 0); }
+
+    // look-at (head + eyes) — computed in the character's frame
+    let yaw = 0, pitch = 0;
+    if (this.lookTarget) {
+      const tgt = (this.lookTarget === 'camera' || this.lookTarget === 'player') ? camera.position
+        : Array.isArray(this.lookTarget) ? _v.set(...this.lookTarget) : this.lookTarget;
+      const hp = this.headWorld(new THREE.Vector3());
+      const d = new THREE.Vector3().subVectors(tgt, hp);
+      this.group.getWorldQuaternion(_rootQ); _rootQi.copy(_rootQ).invert();
+      d.applyQuaternion(_rootQi);
+      yaw = Math.atan2(d.x, d.z);
+      pitch = -Math.atan2(d.y, Math.hypot(d.x, d.z));
+      // don't spin the head all the way round if the target is behind us
+      if (Math.abs(yaw) > 2.2) { yaw = 0; pitch = 0; }
+    }
+    if (mood.away && this.lookTarget) { yaw += mood.away * 0.55; pitch += 0.15; }
+    const ky = 1 - Math.exp(-dt * 5);
+    this.headYaw += (THREE.MathUtils.clamp(yaw, -1.05, 1.05) - this.headYaw) * ky;
+    this.headPitch += (THREE.MathUtils.clamp(pitch, -0.5, 0.55) - this.headPitch) * ky;
+    add('neck', this.headPitch * 0.3, this.headYaw * 0.35, 0);
+    add('head', this.headPitch * 0.55, this.headYaw * 0.55, 0);
+    const eyeY = THREE.MathUtils.clamp(yaw - this.headYaw, -0.4, 0.4), eyeP = THREE.MathUtils.clamp(pitch - this.headPitch, -0.25, 0.25);
+    this.eyeYaw += (eyeY - this.eyeYaw) * ky; this.eyePitch += (eyeP - this.eyePitch) * ky;
+
+    // apply to bones (top-down so each parent's result is final before its children)
+    this.group.getWorldQuaternion(_rootQ);
+    const hips = this.bones.hips;
+    hips.position.y = this.hipsRestY - this.drop;
+    this.group.updateMatrixWorld(true);
+    for (const key of CHAIN) {
+      const b = this.bones[key]; if (!b) continue;
+      const c = this.cur[key], o = ov[key] || [0, 0, 0];
+      _e.set(c[0] + o[0], c[1] + o[1], c[2] + o[2], ORDER[key] || 'YXZ');
+      _q.setFromEuler(_e);                                   // delta in character frame
+      _q2.copy(_rootQ).multiply(_q).multiply(_rootQi.copy(_rootQ).invert()); // -> world frame
+      b.parent.updateWorldMatrix(true, false);
+      b.parent.getWorldQuaternion(_pw); _pwi.copy(_pw).invert();
+      b.quaternion.copy(_pwi).multiply(_q2).multiply(_pw).multiply(this.rest[key]);
+      b.updateMatrixWorld(true);
+    }
+
+    // eyes (rotate the little eye bones a touch)
+    for (const [key, s] of [['eyeL', 1], ['eyeR', 1]]) {
+      const b = this.bones[key]; if (!b) continue;
+      if (!this.rest[key]) this.rest[key] = b.quaternion.clone();
+      _e.set(this.eyePitch * 0.4, this.eyeYaw * 0.4 * s, 0, 'YXZ');
+      _q.setFromEuler(_e);
+      b.quaternion.copy(this.rest[key]).multiply(_q);
+    }
+
+    // face overlays
+    const talkOpen = this.mouthForce != null ? this.mouthForce : this.talking ? (0.35 + 0.65 * Math.abs(Math.sin(t * 13) * Math.sin(t * 7.3))) : 0;
+    this.mouthOpen = (this.mouthOpen || 0) + (talkOpen - (this.mouthOpen || 0)) * (1 - Math.exp(-dt * 25));
+    this.mouth.material.opacity = Math.min(1, this.mouthOpen * 2.2);
+    this.mouth.scale.set(0.7 + this.mouthOpen * 0.3, 0.25 + this.mouthOpen * 0.9, 1);
+    this.blush += (this.blushTarget - this.blush) * (1 - Math.exp(-dt * 4));
+    this.blushL.material.opacity = this.blushR.material.opacity = this.blush * 0.7;
+
+    // android accents
+    this.ledColor.lerp(this.ledTarget, 1 - Math.exp(-dt * 5));
+    this.ledMat.color.copy(this.ledColor).multiplyScalar(1.6);
+    this.haloMat.color.copy(this.ledColor).multiplyScalar(1.4);
+    this.halo.rotation.z += dt * 0.6;
+    this.halo.material.opacity = 0.55 + Math.sin(t * 2.2) * 0.2;
+    if (this.scan > 0) {
+      this.scan = Math.max(0, this.scan - dt / 2.2);
+      const u = 1 - this.scan;
+      this.scanRing.position.y = u * 1.65;
+      this.scanRing.material.opacity = Math.sin(u * Math.PI) * 0.95;
+      this.scanRing.scale.setScalar(1 + Math.sin(u * 6) * 0.05);
+    } else this.scanRing.material.opacity = 0;
+
+    // tint / brightness (scene lighting is faked because the toon materials are unlit)
+    this.flash = Math.max(0, this.flash - dt * 2.5);
+    const br = this.bright + this.flash * 0.6;
+    for (const m of this.mats) m.color.copy(this.tintColor).multiplyScalar(br);
+  }
+
+  startScan() { this.scan = 1; }
+  glitch() { this.flash = 1; }
+}

@@ -1,0 +1,20 @@
+<!doctype html><body style="margin:0"><canvas id=c width=1000 height=700></canvas>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/"}}</script>
+<script type="module">
+import * as THREE from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+const r=new THREE.WebGLRenderer({canvas:c,antialias:true});r.setClearColor(0x333333);
+const s=new THREE.Scene();s.add(new THREE.AmbientLight(0xffffff,2),new THREE.DirectionalLight(0xffffff,2));
+const cam=new THREE.PerspectiveCamera(50,1000/700,.1,500);
+const g=await new GLTFLoader().loadAsync('assets/classroom.glb');
+s.add(g.scene);g.scene.updateMatrixWorld(true);
+const box=new THREE.Box3().setFromObject(g.scene);const sz=box.getSize(new THREE.Vector3()),ct=box.getCenter(new THREE.Vector3());
+const info={min:box.min.toArray(),max:box.max.toArray(),sz:sz.toArray()};
+info.meshes=[];g.scene.traverse(o=>{if(o.isMesh){const b=new THREE.Box3().setFromObject(o);info.meshes.push([o.name,o.material.name,b.min.toArray().map(v=>+v.toFixed(1)),b.max.toArray().map(v=>+v.toFixed(1))])}});
+window.info=info;
+const q=new URLSearchParams(location.search).get('v');
+if(q==='top'){cam.position.set(ct.x,ct.y+sz.length()*1.1,ct.z+.01);}
+else if(q==='in'){cam.position.set(box.min.x+sz.x*.1,box.min.y+sz.y*.55,box.max.z-sz.z*.08);ct.set(ct.x,box.min.y+sz.y*.4,box.min.z);}
+else cam.position.set(ct.x+sz.x,ct.y+sz.y*.8,ct.z+sz.z*1.2);
+cam.lookAt(ct);r.render(s,cam);window.done=1;
+</script>
