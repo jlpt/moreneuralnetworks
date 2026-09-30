@@ -92,9 +92,23 @@ export const POSES = {
     aL: [0.75, -0.55, 0], eL: [-0.6, -0.4, 0], aR: [0.75, 0.55, 0], eR: [-0.6, 0.4, 0],
     spine: [0.35, 0, 0], head: [-0.1, 0, 0],
   },
+  // side splits, upright torso, hands on hips
+  splits: {
+    drop: 0.8,
+    legL: [0, 0, 1.53], legR: [0, 0, -1.53], ankL: [0, 0, -1.2], ankR: [0, 0, 1.2],
+    aL: [0.1, 0, -0.5], eL: [-0.5, 0, -1.75], wL: [0, 0, 0.2],
+    aR: [0.1, 0, 0.5], eR: [-0.5, 0, 1.75], wR: [0, 0, -0.2],
+  },
+  // side splits while holding something overhead with both hands
+  splitlift: {
+    drop: 0.8,
+    legL: [0, 0, 1.53], legR: [0, 0, -1.53], ankL: [0, 0, -1.2], ankR: [0, 0, 1.2],
+    aL: [0, 0, 0.95], eL: [0, 0, 0.45], aR: [0, 0, -0.95], eR: [0, 0, -0.45],
+    head: [-0.2, 0, 0],
+  },
   // seated on a sofa / chair, hands resting on lap
   sit: {
-    drop: 0.46,
+    drop: 0.36,
     hips: [0, 0, 0],
     legL: [-1.5, 0.08, 0.0], kneeL: [1.5, 0, 0], ankL: [0.15, 0, 0],
     legR: [-1.5, -0.08, 0.0], kneeR: [1.5, 0, 0], ankR: [0.15, 0, 0],
@@ -196,7 +210,7 @@ export class Chizuru {
       this.cur[k] = [0, 0, 0];
       this.target[k] = [0, 0, 0];
     }
-    this.hipsRestY = this.bones.hips.position.y;
+    this.hipsRestZ = this.bones.hips.position.z; // the pelvis bone's local Z is world-up
     this.buildFace();
     this.buildAndroidParts();
     this.setPose('stand', true);
@@ -396,7 +410,7 @@ export class Chizuru {
     // apply to bones (top-down so each parent's result is final before its children)
     this.group.getWorldQuaternion(_rootQ);
     const hips = this.bones.hips;
-    hips.position.y = this.hipsRestY - this.drop;
+    hips.position.z = this.hipsRestZ - this.drop;
     this.group.updateMatrixWorld(true);
     for (const key of CHAIN) {
       const b = this.bones[key]; if (!b) continue;

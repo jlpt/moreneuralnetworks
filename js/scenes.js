@@ -342,7 +342,7 @@ function buildApartment() {
     cam: { pos: [0.3, 1.5, 3.4], look: [0, 1.15, -1.0], fov: 46 },
     anchors: { center: [0, 0, -0.6, 0], window: [0, 0, -2.0, 0], door: [1.2, 0, 3.0, Math.PI], dock: [3.7, 0.08, -1.55, -0.2], sofa: [-3.55, 0, 0.5, Math.PI / 2], table: [-0.9, 0, 0.9, 0.2] },
     tint: 0xfff0e6, bright: 0.96,
-    props: { table: tbl },
+    props: { table: tbl, sofa },
     update(dt, t, ctx) { sky.update(dt, t); dr.material.color.setHex(0x66e0ff).multiplyScalar(1.6 + Math.sin(t * 2) * 0.5); },
   };
 }
