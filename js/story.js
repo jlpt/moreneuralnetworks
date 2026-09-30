@@ -120,4 +120,28 @@ export const chapters = [
       ideas: ['Tell her to attend to you: sit together on the sofa', 'Let her tidy up while you watch her work', 'Ask about her memories or what she can actually feel', 'Suggest making tea / dinner together'],
     },
   },
+  {
+    id: 'ch5',
+    title: 'Strength test',
+    beats: [
+      { scene: 'apartment', fade: false, place: [0, 0, -0.6, 0], pose: 'hips', mood: 'happy', look: 'camera', cam: { shot: 'bust' }, cut: true, hud: { time: 'OCT 01, 2087 · 00:20', credits: 1420000, rapport: 19 } },
+      { you: 'Can you lift up the table? I want to see how strong you are.' },
+      { who: 'Chizuru', say: 'You are testing the hardware you just paid ¥1,980,000 for. …Understandable. I would do the same.', mood: 'cold', pose: 'crossed' },
+      { who: 'Chizuru', say: 'For the record, my frame is rated for one hundred and eighty kilograms. That table weighs perhaps eleven. This is not a challenge.', mood: 'happy', pose: 'hips' },
+      { who: 'Chizuru', say: '*She lifts her chin, faintly competitive.* But if you insist on being impressed, I will make it worth your while.', emote: 'star' },
+      { n: 'She crosses the room, rolls her shoulders once, and squares up to the coffee table. Three empty cups rattle in anticipation.', walk: [-0.9, 0, 0.95, 0.15], walkDur: 2.2, cam: { shot: 'medium' }, wait: 2.4 },
+      { who: 'Chizuru', say: 'Stand back. Please do not blink; I do not repeat demonstrations.', pose: 'brace', look: 'none', cam: { shot: 'bust' }, wait: 0.8 },
+      { n: 'A soft whine of servos, the cyan light at her temple flaring bright.', fx: 'flash', pose: 'lift', prop: { name: 'table', pos: [-0.9, 1.42, 0.95], dur: 1.1 }, cam: { pos: [0.9, 1.3, 4.2], look: [-0.9, 1.3, 0.9], fov: 46 }, camDur: 1.5, wait: 1.6 },
+      { n: 'The table rises over her head, cups and all. Not a single cup slips.', emote: 'sparkle' },
+      { who: 'Chizuru', say: 'One. Hundred. And. Eighty. Kilograms. *She does not even look strained.*', look: 'camera', mood: 'happy', emote: ['star', 'exclaim'] },
+      { who: 'Chizuru', say: '*She lowers her left hand and puts it on her hip, balancing the whole table on a single hand.*', pose: 'lift1', prop: { name: 'table', pos: [-1.25, 1.5, 0.95], dur: 0.8, rotY: 0.5 }, wait: 0.5 },
+      { who: 'Chizuru', say: 'Will that do? Or would you like me to spin it? I have a licence for that, technically.', prop: { name: 'table', pos: [-1.25, 1.5, 0.95], dur: 1.6, spin: 6.283 }, cam: { shot: 'medium' }, emote: 'music' },
+      { who: 'Chizuru', say: '*She lowers the table back exactly where it stood, precisely lined up with the rug, and dusts off her hands.*', pose: 'hips', prop: { name: 'table', pos: [-1.7, 0, 0.4], dur: 1.2, rotY: 0 }, mood: 'happy', wait: 1.4 },
+      { who: 'Chizuru', say: 'Result: table lifted, cups intact, dignity intact. *A small, proud smile.* Was that satisfactory, Kazuya?', look: 'camera', cam: { shot: 'close' }, rapport: 5 },
+    ],
+    turn: {
+      prompt: 'Chizuru is waiting for your reaction. What do you say or do?',
+      ideas: ['Praise her (or tease her: “only a table?”)', 'Ask if she can lift YOU', 'Ask her to tidy the apartment now that she’s warmed up', 'Ask what else she is rated for'],
+    },
+  },
 ];

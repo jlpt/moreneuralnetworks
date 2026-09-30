@@ -136,6 +136,16 @@ function updateCamera(dt) {
 
 // ------------------------------------------------------------- story runner
 let runId = 0;
+const propTweens = [];
+function updateProps(dt) {
+  for (let i = propTweens.length - 1; i >= 0; i--) {
+    const p = propTweens[i]; p.t += dt;
+    const u = Math.min(1, p.t / p.dur), e = u * u * (3 - 2 * u);
+    p.o.position.lerpVectors(p.fp, p.tp, e);
+    p.o.rotation.y = p.fr + (p.tr - p.fr) * e + p.spin * Math.sin(u * Math.PI) ;
+    if (u >= 1) propTweens.splice(i, 1);
+  }
+}
 
 function applyState(b) {
   if (b.hud) {
@@ -181,6 +191,10 @@ function applyState(b) {
       emotes.spawn(k, pos, { count: k === 'heart' || k === 'sparkle' ? 4 : 1, size: k === 'heart' ? 0.13 : 0.16 });
     });
     if (list.includes('heart')) sfx('heart');
+  }
+  if (b.prop) {
+    const o = current.props && current.props[b.prop.name];
+    if (o) propTweens.push({ o, t: 0, dur: b.prop.dur ?? 1, fp: o.position.clone(), tp: new THREE.Vector3(...(b.prop.pos || o.position.toArray())), fr: o.rotation.y, tr: b.prop.rotY ?? o.rotation.y, spin: b.prop.spin || 0 });
   }
   if (b.cam !== undefined) moveCamera(b.cam, b.cut ? 0 : (b.camDur ?? 1.6));
   if (b.toast) ui.toast(b.toast);
@@ -259,6 +273,7 @@ function frame() {
   if (current) current.update(dt, t, ctx);
   chizuru.update(dt, camera);
   emotes.update(dt);
+  updateProps(dt);
   updateCamera(dt);
   composer.render();
   requestAnimationFrame(frame);

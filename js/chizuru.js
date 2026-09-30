@@ -76,6 +76,22 @@ export const POSES = {
     aL: [0.3, -1.05, 0], eL: [-0.9, -1.25, 0], aR: [0.3, 1.05, 0], eR: [-0.9, 1.25, 0],
     head: [0.12, 0, 0.1], spine: [0.06, 0, 0],
   },
+  // holding something overhead with both hands
+  lift: {
+    aL: [0, 0, 0.95], eL: [0, 0, 0.45], aR: [0, 0, -0.95], eR: [0, 0, -0.45],
+    spine: [-0.05, 0, 0], head: [-0.2, 0, 0],
+  },
+  // one hand overhead (right), left hand on hip
+  lift1: {
+    aR: [0, 0, -1.4], eR: [0, 0, -0.15], wR: [0, 0, 0],
+    aL: [0.1, 0, -0.5], eL: [-0.5, 0, -1.75], wL: [0, 0, 0.2],
+    spine: [0, 0, 0.06], head: [-0.15, 0, 0.05],
+  },
+  // arms forward, bracing to pick something up
+  brace: {
+    aL: [0.75, -0.55, 0], eL: [-0.6, -0.4, 0], aR: [0.75, 0.55, 0], eR: [-0.6, 0.4, 0],
+    spine: [0.35, 0, 0], head: [-0.1, 0, 0],
+  },
   // seated on a sofa / chair, hands resting on lap
   sit: {
     drop: 0.46,
