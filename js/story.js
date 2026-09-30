@@ -51,4 +51,26 @@ export const chapters = [
       ideas: ['Ask AYA to wake her up for a demonstration', 'Ask about the price / what “heart-care” covers', 'Just buy her — ¥1,980,000, no questions', 'Walk around and look at the other models first'],
     },
   },
+  {
+    id: 'ch2',
+    title: 'Purchase & activation',
+    beats: [
+      { scene: 'store', fade: false, place: 'pod', pose: 'standby', mood: 'sleepy', look: 'none', cam: { shot: 'medium' }, cut: true },
+      { you: 'I want to buy her.', cam: 'pov' },
+      { who: 'AYA', say: 'Wonderful. Most guests hesitate for at least ten minutes. You hesitated for none.' },
+      { who: 'AYA', say: 'Processing payment: ¥1,980,000. Five-year heart-care warranty attached.', pay: 1980000, toast: 'PAYMENT ACCEPTED · ¥1,980,000' },
+      { who: 'AYA', say: 'Ownership transferred. Beginning activation. Please stand back from the glass.', cam: { shot: 'bust' }, sfx: 'door' },
+      { n: 'The pod’s glass slides away in a hiss of cold mist. The ring at her feet flares from pink to white.', fx: 'scan', wait: 1.6 },
+      { n: 'The cyan light at her temple stutters, then steadies.', fx: 'boot', mood: 'neutral', cam: { shot: 'close' }, wait: 1.4 },
+      { n: 'Her head lifts. Her eyes open slowly and find yours.', pose: 'clasp', look: 'camera', cam: { shot: 'face' }, wait: 0.8 },
+      { who: 'Chizuru', say: 'Boot sequence complete. All systems nominal.', mood: 'neutral' },
+      { who: 'Chizuru', say: '*She steps out of the pod and gives a small, perfectly measured bow.*', pose: 'bow', place: 'front', cam: { shot: 'medium' } },
+      { who: 'Chizuru', say: 'Good evening. I am Mizuhara Chizuru, Companion Series MZ-01. Thank you for choosing me.', pose: 'clasp', mood: 'happy', emote: 'sparkle', rapport: 5, cam: { shot: 'bust' } },
+      { who: 'Chizuru', say: 'Before we begin, I need to register my owner. May I ask your name?', look: 'camera' },
+    ],
+    turn: {
+      prompt: 'Chizuru is waiting for your name. Tell me in the Claude chat what you’d like to be called, and anything else you say or do.',
+      ideas: ['Give her your name', 'Ask her something first: “Do you really remember other clients?”', 'Ask to go home right away', 'Test the “stubborn” bit AYA mentioned'],
+    },
+  },
 ];
