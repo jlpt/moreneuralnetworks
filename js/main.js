@@ -170,6 +170,7 @@ function applyState(b) {
   if (b.show) chizuru.group.visible = true;
   if (b.android !== undefined) chizuru.setAndroid(b.android);
   if (b.tint) chizuru.setTint(b.tint, b.bright ?? current.bright);
+  if (b.style) chizuru.setStyle(b.style);
   if (b.pose) chizuru.setPose(b.pose, !!b.instant);
   if (b.mood) chizuru.setMood(b.mood);
   if (b.look !== undefined) chizuru.setLook(b.look === 'none' ? null : b.look);

@@ -447,6 +447,65 @@ export class Chizuru {
     for (const m of this.mats) m.color.copy(this.tintColor).multiplyScalar(br);
   }
 
+  // -------------------------------------------------------------------------
+  // Appearance profiles. The model is texture-based, so we recolour the source
+  // textures in a canvas: shirt/ribbon hue shift, hair colour, and body scale.
+  //   style: { shirt: hueShiftDegrees, hair: 'default' | {h:0-360, s:0-1, l:0-1}, scale: 1 }
+  setStyle(style = {}) {
+    if (!this.styleSrc) {
+      const grab = (name) => {
+        const m = this.mats.find((x) => x.name === name);
+        const img = m.map.image;
+        const c = document.createElement('canvas'); c.width = img.width; c.height = img.height;
+        const g = c.getContext('2d', { willReadFrequently: true });
+        g.drawImage(img, 0, 0);
+        return { g, w: c.width, h: c.height, data: g.getImageData(0, 0, c.width, c.height), canvas: c, mats: this.mats.filter((x) => x.map && x.map.image === img) };
+      };
+      this.styleSrc = { cloth: grab('cloth'), hair: grab('backhair') };
+      this.styleSrc.hair.mats = this.mats.filter((x) => x.name === 'hair' || x.name === 'backhair');
+    }
+    const S = this.styleSrc;
+    const shift = style.shirt || 0;
+    const hair = style.hair && style.hair !== 'default' ? style.hair : null;
+    const recolor = (src, fn) => {
+      const out = new ImageData(new Uint8ClampedArray(src.data.data), src.w, src.h);
+      const d = out.data;
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i + 3] < 8) continue;
+        const r = d[i] / 255, g = d[i + 1] / 255, b = d[i + 2] / 255;
+        const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, dl = mx - mn;
+        let h = 0, s = 0;
+        if (dl > 1e-5) {
+          s = dl / (1 - Math.abs(2 * l - 1));
+          h = mx === r ? ((g - b) / dl + (g < b ? 6 : 0)) : mx === g ? (b - r) / dl + 2 : (r - g) / dl + 4;
+          h *= 60;
+        }
+        const res = fn(h, s, l);
+        if (!res) continue;
+        const [nh, ns, nl] = res;
+        const c = (1 - Math.abs(2 * nl - 1)) * ns, x = c * (1 - Math.abs(((nh / 60) % 2) - 1)), m = nl - c / 2;
+        const k = Math.floor((((nh % 360) + 360) % 360) / 60);
+        const rgb = [[c, x, 0], [x, c, 0], [0, c, x], [0, x, c], [x, 0, c], [c, 0, x]][k];
+        d[i] = (rgb[0] + m) * 255; d[i + 1] = (rgb[1] + m) * 255; d[i + 2] = (rgb[2] + m) * 255;
+      }
+      src.g.putImageData(out, 0, 0);
+    };
+    const swap = (src) => {
+      const tex = new THREE.CanvasTexture(src.canvas);
+      tex.flipY = false; tex.colorSpace = THREE.SRGBColorSpace; tex.anisotropy = 8;
+      tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+      for (const m of src.mats) { m.map = tex; m.needsUpdate = true; }
+    };
+    // shirt + ribbon are the saturated red/pink pixels; skin and skirt are left alone
+    recolor(S.cloth, (h, s, l) => ((h >= 335 || h <= 12) && s > 0.3 ? [h + shift, s, l] : null));
+    swap(S.cloth);
+    if (hair) recolor(S.hair, (h, s, l) => [hair.h, Math.min(1, s * (hair.s ?? 1) + (hair.sAdd ?? 0)), Math.min(0.95, l * (hair.l ?? 1) + (hair.lAdd ?? 0))]);
+    else S.hair.g.putImageData(S.hair.data, 0, 0);
+    swap(S.hair);
+    this.group.scale.setScalar(style.scale || 1);
+    this.glitch();
+  }
+
   startScan() { this.scan = 1; }
   glitch() { this.flash = 1; }
 }
