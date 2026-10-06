@@ -42,10 +42,15 @@ const SFX = {
 
 // A tiny 124 bpm synth loop for dance scenes.
 let musicTimer = null, musicStep = 0;
-export function music(on) {
+export function music(on, mode = 'dance') {
   if (musicTimer) { clearInterval(musicTimer); musicTimer = null; }
   if (!on || muted || !ensure()) return;
   musicStep = 0;
+  if (mode === 'lullaby') { // slow music-box arpeggio
+    const notes = [523, 659, 784, 659, 587, 740, 880, 740, 523, 659, 784, 1047, 988, 784, 659, 523];
+    musicTimer = setInterval(() => { const n = notes[musicStep++ % notes.length]; tone(n, 1.2, { type: 'sine', vol: 0.045 }); tone(n * 2, 0.5, { type: 'sine', vol: 0.012 }); }, 750);
+    return;
+  }
   const bass = [55, 0, 55, 0, 65.4, 0, 55, 0, 73.4, 0, 73.4, 0, 49, 0, 55, 82.4];
   const arp = [440, 523, 659, 784, 659, 523, 587, 740];
   musicTimer = setInterval(() => {

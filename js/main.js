@@ -101,6 +101,7 @@ const SHOTS = {
   side:   { p: [2.1, 1.3, 1.3],    l: [0, 1.15, 0], fov: 34 },
   pov:    { p: [0, 1.62, 2.3],     l: [0, 1.25, 0], fov: 40 },
   behind: { p: [0.3, 1.55, -1.8],  l: [0, 1.3, 1.5], fov: 42 },
+  lap:    { p: [0.02, 0.98, 0.55], l: [0, 1.3, 0], fov: 58 },
 };
 const _v = new THREE.Vector3();
 function resolveCam(spec) {
@@ -171,7 +172,8 @@ function applyState(b) {
   if (b.show) chizuru.group.visible = true;
   if (b.android !== undefined) chizuru.setAndroid(b.android);
   if (b.tint) chizuru.setTint(b.tint, b.bright ?? current.bright);
-  if (b.music !== undefined) music(b.music === 'on');
+  if (b.music !== undefined) music(b.music !== 'off', b.music === 'lullaby' ? 'lullaby' : 'dance');
+  if (b.dim !== undefined) ctx.dim = !!b.dim;
   if (b.party !== undefined) { ctx.party = !!b.party; bloom.strength = b.party ? 0.75 : 0.5; }
   if (b.flip) { chizuru.startFlip(b.flip === true ? {} : b.flip); sfx('scan'); }
   if (b.style) chizuru.setStyle(b.style);

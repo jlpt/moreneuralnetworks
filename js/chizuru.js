@@ -136,9 +136,18 @@ export const POSES = {
     aL: [0.9, 0, -0.35], eL: [-0.3, 0, 0], aR: [0.9, 0, 0.35], eR: [-0.3, 0, 0],
     spine: [0.35, 0, 0], head: [-0.2, 0, 0],
   },
+  // seated, drowsy, head tipped to one side
+  sitnap: {
+    drop: 0.26,
+    legL: [-1.5, 0.08, 0.0], kneeL: [1.5, 0, 0], ankL: [0.15, 0, 0],
+    legR: [-1.5, -0.08, 0.0], kneeR: [1.5, 0, 0], ankR: [0.15, 0, 0],
+    aL: [-0.25, 0, -1.2], eL: [-1.15, -0.85, 0],
+    aR: [-0.25, 0, 1.2], eR: [-1.15, 0.85, 0],
+    spine: [0.05, 0, 0.04], head: [0.3, 0, 0.25], neck: [0.1, 0, 0.08],
+  },
   // seated on a sofa / chair, hands resting on lap
   sit: {
-    drop: 0.36,
+    drop: 0.26,
     hips: [0, 0, 0],
     legL: [-1.5, 0.08, 0.0], kneeL: [1.5, 0, 0], ankL: [0.15, 0, 0],
     legR: [-1.5, -0.08, 0.0], kneeR: [1.5, 0, 0], ankR: [0.15, 0, 0],

@@ -336,7 +336,7 @@ function buildApartment() {
   group.add(lamp);
 
   const lights = new THREE.Group(); group.add(lights);
-  lights.add(new THREE.HemisphereLight(0xffe6d0, 0x2b2540, 0.9));
+  const hemi = new THREE.HemisphereLight(0xffe6d0, 0x2b2540, 0.9); lights.add(hemi);
   const warm = new THREE.PointLight(0xffb070, 5, 7); warm.position.set(-3.4, 1.7, -1.6); lights.add(warm);
   const ceilL = new THREE.PointLight(0xfff0dd, 16, 9); ceilL.position.set(0, 2.6, 0.6); lights.add(ceilL);
   const cool = new THREE.DirectionalLight(0x8fb8ff, 1.4); cool.position.set(0, 3, -6); lights.add(cool);
@@ -358,7 +358,8 @@ function buildApartment() {
       disco1.position.set(Math.cos(t * 1.7) * 2.6, 2.2, 0.5 + Math.sin(t * 1.7) * 1.6);
       disco2.position.set(Math.cos(t * 1.7 + 3.1) * 2.6, 2.0, 0.5 + Math.sin(t * 1.7 + 3.1) * 1.6);
       disco3.position.set(0.6, 1.2 + Math.sin(t * 6) * 0.3, 2.4);
-      ceilL.intensity = ctx.party ? 3 : 16; warm.intensity = ctx.party ? 1 : 5;
+      const tgtC = ctx.party ? 3 : ctx.dim ? 0 : 16, tgtW = ctx.party ? 1 : ctx.dim ? 9 : 5, tgtH = ctx.dim ? 0.3 : 0.9;
+      ceilL.intensity += (tgtC - ceilL.intensity) * k; warm.intensity += (tgtW - warm.intensity) * k; hemi.intensity += (tgtH - hemi.intensity) * k;
       dr.material.color.setHex(0x66e0ff).multiplyScalar(1.6 + Math.sin(t * 2) * 0.5); },
   };
 }
