@@ -123,6 +123,19 @@ export const POSES = {
     aL: [0, 0, 0.95], eL: [0, 0, 0.45], aR: [0, 0, -0.95], eR: [0, 0, -0.45],
     head: [-0.1, 0, 0],
   },
+  // mid-air tuck for flips
+  tuck: {
+    legL: [-1.5, 0, 0.05], kneeL: [2.1, 0, 0], legR: [-1.5, 0, -0.05], kneeR: [2.1, 0, 0], ankL: [0.3, 0, 0], ankR: [0.3, 0, 0],
+    aL: [-0.6, 0, -0.9], eL: [-1.6, -0.9, 0], aR: [-0.6, 0, 0.9], eR: [-1.6, 0.9, 0],
+    spine: [0.35, 0, 0], head: [0.2, 0, 0],
+  },
+  // coiled just before a jump
+  crouch: {
+    drop: 0.28,
+    legL: [-0.75, 0, 0.1], kneeL: [1.5, 0, 0], legR: [-0.75, 0, -0.1], kneeR: [1.5, 0, 0], ankL: [0.3, 0, 0], ankR: [0.3, 0, 0],
+    aL: [0.9, 0, -0.35], eL: [-0.3, 0, 0], aR: [0.9, 0, 0.35], eR: [-0.3, 0, 0],
+    spine: [0.35, 0, 0], head: [-0.2, 0, 0],
+  },
   // seated on a sofa / chair, hands resting on lap
   sit: {
     drop: 0.36,
@@ -204,7 +217,10 @@ export class Chizuru {
   async load(url, onProgress) {
     const gltf = await new GLTFLoader().loadAsync(url, onProgress);
     this.model = gltf.scene;
-    this.group.add(this.model);
+    // pivot at hip height so we can rotate her for flips; the model hangs below it
+    this.pivot = new THREE.Group();
+    this.group.add(this.pivot);
+    this.pivot.add(this.model);
     this.model.traverse((o) => {
       if (o.isBone) for (const k in BONES) if (!this.bones[k] && o.name.startsWith(BONES[k])) this.bones[k] = o;
       if (o.isSkinnedMesh) {
@@ -228,6 +244,9 @@ export class Chizuru {
       this.target[k] = [0, 0, 0];
     }
     this.hipsRestZ = this.bones.hips.position.z; // the pelvis bone's local Z is world-up
+    this.group.updateMatrixWorld(true);
+    this.pivotY = this.bones.hips.getWorldPosition(new THREE.Vector3()).y;
+    this.pivot.position.y = this.pivotY; this.model.position.y = -this.pivotY;
     this.buildFace();
     this.buildAndroidParts();
     this.setPose('stand', true);
@@ -363,6 +382,20 @@ export class Chizuru {
       if (u >= 1) { if (w.ry !== undefined) { this.walk = { ...w, from: w.to.clone(), t: 0, dur: 0.001, faceOnly: true }; } else this.walk = null; }
     } else this.moving += (0 - this.moving) * (1 - Math.exp(-dt * 8));
 
+    // flip animation (runs on the pivot at her hips)
+    if (this.flip) {
+      const f = this.flip; f.t += dt;
+      if (f.t < 0) { if (f.phase < 1) { this.setPose('crouch'); f.phase = 1; } this.pivot.rotation.x = 0; this.pivot.position.y = this.pivotY; }
+      else {
+        const u = Math.min(1, f.t / f.dur);
+        if (f.phase < 2) { this.setPose('tuck'); f.phase = 2; }
+        const e = u < 0.1 ? 0 : u > 0.9 ? 1 : (u - 0.1) / 0.8; // hold upright briefly at take-off and landing
+        this.pivot.rotation.x = f.dir * Math.PI * 2 * f.turns * (e * e * (3 - 2 * e) * 0.35 + e * 0.65);
+        this.pivot.position.y = this.pivotY + f.height * 4 * u * (1 - u);
+        if (u > 0.82 && f.phase < 3) { this.setPose('crouch'); f.phase = 3; }
+        if (u >= 1) { this.pivot.rotation.x = 0; this.pivot.position.y = this.pivotY; this.setPose(f.prev === 'tuck' || f.prev === 'crouch' ? 'stand' : f.prev); this.flip = null; this.flash = 0.5; }
+      }
+    }
     // smooth pose
     for (const key of CHAIN) {
       const c = this.cur[key], tg = this.target[key];
@@ -421,7 +454,7 @@ export class Chizuru {
         : Array.isArray(this.lookTarget) ? _v.set(...this.lookTarget) : this.lookTarget;
       const hp = this.headWorld(new THREE.Vector3());
       const d = new THREE.Vector3().subVectors(tgt, hp);
-      this.group.getWorldQuaternion(_rootQ); _rootQi.copy(_rootQ).invert();
+      this.pivot.getWorldQuaternion(_rootQ); _rootQi.copy(_rootQ).invert();
       d.applyQuaternion(_rootQi);
       yaw = Math.atan2(d.x, d.z);
       pitch = -Math.atan2(d.y, Math.hypot(d.x, d.z));
@@ -438,7 +471,7 @@ export class Chizuru {
     this.eyeYaw += (eyeY - this.eyeYaw) * ky; this.eyePitch += (eyeP - this.eyePitch) * ky;
 
     // apply to bones (top-down so each parent's result is final before its children)
-    this.group.getWorldQuaternion(_rootQ);
+    this.pivot.getWorldQuaternion(_rootQ);
     const hips = this.bones.hips;
     hips.position.z = this.hipsRestZ - this.drop - (this.bobOff || 0);
     this.group.updateMatrixWorld(true);
@@ -548,6 +581,11 @@ export class Chizuru {
     swap(S.hair);
     this.group.scale.setScalar(style.scale || 1);
     this.glitch();
+  }
+
+  // Backflip(s). turns: 1 = single, 2 = double. dir -1 = backwards, +1 = forwards.
+  startFlip({ dur = 1.15, height = 0.95, turns = 1, dir = -1 } = {}) {
+    this.flip = { t: -0.35, dur, height, turns, dir, prev: this.poseName, phase: 0 };
   }
 
   startScan() { this.scan = 1; }

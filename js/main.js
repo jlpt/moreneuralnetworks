@@ -173,6 +173,7 @@ function applyState(b) {
   if (b.tint) chizuru.setTint(b.tint, b.bright ?? current.bright);
   if (b.music !== undefined) music(b.music === 'on');
   if (b.party !== undefined) { ctx.party = !!b.party; bloom.strength = b.party ? 0.75 : 0.5; }
+  if (b.flip) { chizuru.startFlip(b.flip === true ? {} : b.flip); sfx('scan'); }
   if (b.style) chizuru.setStyle(b.style);
   if (b.pose) chizuru.setPose(b.pose, !!b.instant);
   if (b.mood) chizuru.setMood(b.mood);
